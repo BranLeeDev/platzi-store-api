@@ -8,7 +8,17 @@ export default registerAs('registers', () => {
   const ENVIRONMENT = config.env;
 
   if (ENVIRONMENT === 'development') {
-    return {};
+    return {
+      db: {
+        postgres: {
+          name: process.env.POSTGRES_DB,
+          user: process.env.POSTGRES_USER,
+          password: process.env.POSTGRES_PASSWORD,
+          host: process.env.POSTGRES_HOST,
+          port: process.env.POSTGRES_PORT,
+        },
+      },
+    };
   }
 
   if (ENVIRONMENT === 'test') {
@@ -16,6 +26,12 @@ export default registerAs('registers', () => {
   }
 
   if (ENVIRONMENT === 'production') {
-    return {};
+    return {
+      db: {
+        postgres: {
+          dbUrl: process.env.DATABASE_URL,
+        },
+      },
+    };
   }
 });
