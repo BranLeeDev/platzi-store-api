@@ -12,6 +12,10 @@ import { config } from './configs/config';
 import { environments } from './configs/environments';
 import registers from './configs/registers';
 
+// Module imports
+import { ProductsModule } from './modules/products/products.module';
+import { UsersModule } from './modules/users/users.module';
+
 @Module({
   imports: [
     ThrottlerModule.forRoot([
@@ -29,6 +33,8 @@ import registers from './configs/registers';
         PORT: Joi.number().integer().positive().min(1000),
       }),
     }),
+    ProductsModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [
