@@ -13,6 +13,7 @@ import { environments } from './configs/environments';
 import registers from './configs/registers';
 
 // Module imports
+import { DatabaseModule } from './modules/database/database.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -33,6 +34,7 @@ import { UsersModule } from './modules/users/users.module';
         PORT: Joi.number().integer().positive().min(1000),
       }),
     }),
+    DatabaseModule,
     ProductsModule,
     UsersModule,
   ],
