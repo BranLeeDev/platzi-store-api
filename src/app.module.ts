@@ -1,6 +1,13 @@
+// NestJS modules
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
+// Config imports
+import { config } from './configs/config';
+import { environments } from './configs/environments';
+import registers from './configs/registers';
 
 @Module({
   imports: [
@@ -10,6 +17,11 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
         limit: 7,
       },
     ]),
+    ConfigModule.forRoot({
+      envFilePath: environments[config.env],
+      load: [registers],
+      isGlobal: true,
+    }),
   ],
   controllers: [],
   providers: [
