@@ -5,7 +5,9 @@ import {
   IsNumber,
   IsPositive,
   IsString,
+  Max,
   MaxLength,
+  Min,
   MinLength,
 } from 'class-validator';
 
@@ -14,7 +16,7 @@ export class CreateProductDto {
     description: 'Name of the product',
     minLength: 3,
     maxLength: 50,
-    example: 'Example product',
+    example: 'Apple iPhone 13',
   })
   @IsString()
   @IsNotEmpty()
@@ -30,22 +32,27 @@ export class CreateProductDto {
     description: 'Description on the product',
     minLength: 10,
     maxLength: 1500,
-    example: 'This is an example brand description',
+    example:
+      'The latest iPhone with a stunning Super Retina XDR display and powerful A15 Bionic chip',
   })
   readonly description: string;
 
   @ApiProperty({
     description: 'Price of the product',
-    example: 123.45,
+    minimum: 1.01,
+    maximum: 9999999999.99,
+    example: 999.99,
   })
   @IsNumber()
   @IsPositive()
+  @Min(1.01)
+  @Max(9999999999.99)
   readonly price: number;
 
   @ApiProperty({
     description: 'Stock of the product',
     minimum: 1,
-    example: 100,
+    example: 50,
   })
   @IsNumber()
   @IsPositive()
