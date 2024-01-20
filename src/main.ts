@@ -1,6 +1,7 @@
 // NestJS modules
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 // Third-party libraries
 import helmet from 'helmet';
@@ -16,6 +17,15 @@ const PORT = config.port;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      disableErrorMessages: config.isPro,
+    }),
+  );
+
   app.enableCors();
   app.use(helmet());
 
