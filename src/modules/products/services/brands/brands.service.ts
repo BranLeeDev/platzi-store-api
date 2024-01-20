@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 // Entity imports
 import { Brand } from '../../entities/brand.entity';
 
-// Dto imports
+// DTO imports
 import { CreateBrandDto } from '../../dtos/brands/create-brand.dto';
 import { UpdateBrandDto } from '../../dtos/brands/update-brand.dto';
 
@@ -22,8 +22,8 @@ export class BrandsService {
     return this.brandsRepo.find();
   }
 
-  findOne(id: number) {
-    const brand = this.brandsRepo.findOneBy({ id });
+  async findOne(id: number) {
+    const brand = await this.brandsRepo.findOneBy({ id });
     if (!brand) throw new NotFoundException(`Brand #${id} not Found`);
     return brand;
   }
@@ -39,23 +39,23 @@ export class BrandsService {
   }
 
   async update(id: number, payload: UpdateBrandDto) {
-    const brand = await this.findOne(id);
-    this.brandsRepo.merge(brand, payload);
-    const updateResult = await this.brandsRepo.save(brand);
+    const brandFound = await this.findOne(id);
+    this.brandsRepo.merge(brandFound, payload);
+    const updatedResult = await this.brandsRepo.save(brandFound);
 
     return {
       message: 'Brand updated successfully',
-      data: updateResult,
+      data: updatedResult,
     };
   }
 
   async delete(id: number) {
-    const deleteResult = await this.findOne(id);
+    const deletedResult = await this.findOne(id);
     await this.brandsRepo.delete(id);
 
     return {
       message: 'Brand deleted successfully',
-      data: deleteResult,
+      data: deletedResult,
     };
   }
 }

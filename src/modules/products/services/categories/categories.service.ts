@@ -23,8 +23,8 @@ export class CategoriesService {
     return this.categoriesRepo.find();
   }
 
-  findOne(id: number) {
-    const category = this.categoriesRepo.findOneBy({ id });
+  async findOne(id: number) {
+    const category = await this.categoriesRepo.findOneBy({ id });
     if (!category) throw new NotFoundException(`Category #${id} not Found`);
     return category;
   }
@@ -40,23 +40,23 @@ export class CategoriesService {
   }
 
   async update(id: number, payload: UpdateCategoryDto) {
-    const category = await this.findOne(id);
-    this.categoriesRepo.merge(category, payload);
-    const updateResult = await this.categoriesRepo.save(category);
+    const categoryFound = await this.findOne(id);
+    this.categoriesRepo.merge(categoryFound, payload);
+    const updatedResult = await this.categoriesRepo.save(categoryFound);
 
     return {
       message: 'Category updated successfully',
-      data: updateResult,
+      data: updatedResult,
     };
   }
 
   async delete(id: number) {
-    const deleteResult = await this.findOne(id);
+    const deletedResult = await this.findOne(id);
     await this.categoriesRepo.delete(id);
 
     return {
       message: 'Category deleted successfully',
-      data: deleteResult,
+      data: deletedResult,
     };
   }
 }
