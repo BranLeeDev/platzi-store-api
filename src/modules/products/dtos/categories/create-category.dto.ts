@@ -6,7 +6,7 @@ export class CreateCategoryDto {
     description: 'Name of the category',
     minLength: 3,
     maxLength: 30,
-    example: 'Example category',
+    example: 'Electronics',
   })
   @IsString()
   @IsNotEmpty()

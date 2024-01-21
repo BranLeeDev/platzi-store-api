@@ -6,7 +6,7 @@ export class CreateBrandDto {
     description: 'Name of the brand',
     minLength: 3,
     maxLength: 30,
-    example: 'Example Brand',
+    example: 'Apple',
   })
   @IsString()
   @IsNotEmpty()
@@ -18,7 +18,8 @@ export class CreateBrandDto {
     description: 'Description of the brand',
     minLength: 15,
     maxLength: 255,
-    example: 'This is an example brand description',
+    example:
+      'A multinational technology company known for its iconic products, including the iPhone, iPad, Mac, and innovative software solutions',
   })
   @IsString()
   @IsNotEmpty()
