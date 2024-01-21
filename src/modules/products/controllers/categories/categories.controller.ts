@@ -16,7 +16,13 @@ import { CategoriesService } from '../../services/categories/categories.service'
 // Dto imports
 import { CreateCategoryDto } from '../../dtos/categories/create-category.dto';
 import { UpdateCategoryDto } from '../../dtos/categories/update-category.dto';
-import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 // Entity imports
 import { Category } from '../../entities/category.entity';
@@ -27,6 +33,10 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all categories',
+    description: 'Retrieve a list of all categories',
+  })
   @ApiResponse({
     status: 200,
     description: 'List of all categories',
@@ -37,6 +47,10 @@ export class CategoriesController {
   }
 
   @Post()
+  @ApiOperation({
+    summary: 'Create a category',
+    description: 'Create a new category',
+  })
   @ApiResponse({
     status: 201,
     description: 'Category created successfully',
@@ -48,6 +62,10 @@ export class CategoriesController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get category by ID',
+    description: 'Retrieve details of a specific category by ID',
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiResponse({ status: 200, description: 'Category details', type: Category })
   getCategory(@Param('id', ParseIntPipe) id: number) {
@@ -55,6 +73,10 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update category by ID',
+    description: 'Update details of a specific category by ID',
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiResponse({
     status: 200,
@@ -70,6 +92,10 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete category by ID',
+    description: 'Delete a specific category by ID',
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiResponse({ status: 200, description: 'Category deleted successfully' })
   deleteCategory(@Param('id', ParseIntPipe) id: number) {

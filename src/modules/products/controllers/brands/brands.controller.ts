@@ -9,7 +9,13 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 // Service imports
 import { BrandsService } from '../../services/brands/brands.service';
@@ -27,6 +33,10 @@ export class BrandsController {
   constructor(private brandsService: BrandsService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all brands',
+    description: 'Retrieve a list of all brands',
+  })
   @ApiResponse({
     status: 200,
     description: 'List of all brands',
@@ -37,6 +47,10 @@ export class BrandsController {
   }
 
   @Post()
+  @ApiOperation({
+    summary: 'Create a brand',
+    description: 'Create a new brand',
+  })
   @ApiResponse({
     status: 201,
     description: 'Brand created successfully',
@@ -48,6 +62,10 @@ export class BrandsController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get brand by ID',
+    description: 'Retrieve details of a specific brand by ID',
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiResponse({ status: 200, description: 'Brand details', type: Brand })
   getBrand(@Param('id', ParseIntPipe) id: number) {
@@ -55,6 +73,10 @@ export class BrandsController {
   }
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update brand by ID',
+    description: 'Update details of a specific brand by ID',
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiResponse({
     status: 200,
@@ -70,6 +92,10 @@ export class BrandsController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete brand by ID',
+    description: 'Delete a specif brand by ID',
+  })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiResponse({ status: 200, description: 'Brand deleted successfully' })
   deleteBrand(@Param('id', ParseIntPipe) id: number) {
