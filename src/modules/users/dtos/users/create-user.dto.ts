@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -28,6 +29,9 @@ export class CreateUserDto {
   @MaxLength(100)
   password: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(ROLES)
-  role: ROLES;
+  role?: ROLES;
 }
