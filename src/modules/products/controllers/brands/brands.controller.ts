@@ -20,7 +20,7 @@ import {
 // Service imports
 import { BrandsService } from '../../services/brands/brands.service';
 
-// Dto imports
+// DTO imports
 import { UpdateBrandDto } from '../../dtos/brands/update-brand.dto';
 import { CreateBrandDto } from '../../dtos/brands/create-brand.dto';
 

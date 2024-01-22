@@ -20,7 +20,7 @@ import {
 // Service imports
 import { CategoriesService } from '../../services/categories/categories.service';
 
-// Dto imports
+// DTO imports
 import { CreateCategoryDto } from '../../dtos/categories/create-category.dto';
 import { UpdateCategoryDto } from '../../dtos/categories/update-category.dto';
 
