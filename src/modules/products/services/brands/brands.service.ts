@@ -15,22 +15,22 @@ import { UpdateBrandDto } from '../../dtos/brands/update-brand.dto';
 @Injectable()
 export class BrandsService {
   constructor(
-    @InjectRepository(Brand) private readonly brandsRepo: Repository<Brand>,
+    @InjectRepository(Brand) private readonly brandRepo: Repository<Brand>,
   ) {}
 
   findAll() {
-    return this.brandsRepo.find();
+    return this.brandRepo.find();
   }
 
   async findOne(id: number) {
-    const brand = await this.brandsRepo.findOneBy({ id });
+    const brand = await this.brandRepo.findOneBy({ id });
     if (!brand) throw new NotFoundException(`Brand #${id} not Found`);
     return brand;
   }
 
   async create(payload: CreateBrandDto) {
-    const newBrand = this.brandsRepo.create(payload);
-    await this.brandsRepo.save(newBrand);
+    const newBrand = this.brandRepo.create(payload);
+    await this.brandRepo.save(newBrand);
 
     return {
       message: 'Brand created successfully',
@@ -40,8 +40,8 @@ export class BrandsService {
 
   async update(id: number, payload: UpdateBrandDto) {
     const brandFound = await this.findOne(id);
-    this.brandsRepo.merge(brandFound, payload);
-    const updatedResult = await this.brandsRepo.save(brandFound);
+    this.brandRepo.merge(brandFound, payload);
+    const updatedResult = await this.brandRepo.save(brandFound);
 
     return {
       message: 'Brand updated successfully',
@@ -51,7 +51,7 @@ export class BrandsService {
 
   async delete(id: number) {
     const deletedResult = await this.findOne(id);
-    await this.brandsRepo.delete(id);
+    await this.brandRepo.delete(id);
 
     return {
       message: 'Brand deleted successfully',

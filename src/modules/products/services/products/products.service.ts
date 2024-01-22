@@ -16,22 +16,22 @@ import { Product } from '../../entities/product.entity';
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private readonly productsRepo: Repository<Product>,
+    private readonly productRepo: Repository<Product>,
   ) {}
 
   findAll() {
-    return this.productsRepo.find();
+    return this.productRepo.find();
   }
 
   async findOne(id: number) {
-    const product = await this.productsRepo.findOneBy({ id });
+    const product = await this.productRepo.findOneBy({ id });
     if (!product) throw new NotFoundException(`Product #${id} not Found`);
     return product;
   }
 
   async create(payload: CreateProductDto) {
-    const newProduct = this.productsRepo.create(payload);
-    await this.productsRepo.save(newProduct);
+    const newProduct = this.productRepo.create(payload);
+    await this.productRepo.save(newProduct);
 
     return {
       message: 'Product created successfully',
@@ -41,8 +41,8 @@ export class ProductsService {
 
   async update(id: number, payload: UpdateProductDto) {
     const productFound = await this.findOne(id);
-    this.productsRepo.merge(productFound, payload);
-    const updatedResult = await this.productsRepo.save(productFound);
+    this.productRepo.merge(productFound, payload);
+    const updatedResult = await this.productRepo.save(productFound);
 
     return {
       message: 'Product updated successfully',
@@ -52,7 +52,7 @@ export class ProductsService {
 
   async delete(id: number) {
     const deletedProduct = await this.findOne(id);
-    await this.productsRepo.delete(id);
+    await this.productRepo.delete(id);
 
     return {
       message: 'Product deleted successfully',

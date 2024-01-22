@@ -16,22 +16,22 @@ import { CreateCategoryDto } from '../../dtos/categories/create-category.dto';
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
-    private readonly categoriesRepo: Repository<Category>,
+    private readonly categoryRepo: Repository<Category>,
   ) {}
 
   findAll() {
-    return this.categoriesRepo.find();
+    return this.categoryRepo.find();
   }
 
   async findOne(id: number) {
-    const category = await this.categoriesRepo.findOneBy({ id });
+    const category = await this.categoryRepo.findOneBy({ id });
     if (!category) throw new NotFoundException(`Category #${id} not Found`);
     return category;
   }
 
   async create(payload: CreateCategoryDto) {
-    const newCategory = this.categoriesRepo.create(payload);
-    await this.categoriesRepo.save(newCategory);
+    const newCategory = this.categoryRepo.create(payload);
+    await this.categoryRepo.save(newCategory);
 
     return {
       message: 'Category created successfully',
@@ -41,8 +41,8 @@ export class CategoriesService {
 
   async update(id: number, payload: UpdateCategoryDto) {
     const categoryFound = await this.findOne(id);
-    this.categoriesRepo.merge(categoryFound, payload);
-    const updatedResult = await this.categoriesRepo.save(categoryFound);
+    this.categoryRepo.merge(categoryFound, payload);
+    const updatedResult = await this.categoryRepo.save(categoryFound);
 
     return {
       message: 'Category updated successfully',
@@ -52,7 +52,7 @@ export class CategoriesService {
 
   async delete(id: number) {
     const deletedResult = await this.findOne(id);
-    await this.categoriesRepo.delete(id);
+    await this.categoryRepo.delete(id);
 
     return {
       message: 'Category deleted successfully',
