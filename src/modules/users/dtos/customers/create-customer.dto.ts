@@ -1,3 +1,6 @@
+// NestJS modules
+import { ApiProperty } from '@nestjs/swagger';
+
 // Third-party libraries
 import {
   IsDate,
@@ -15,23 +18,44 @@ import { Type } from 'class-transformer';
 import { GENDERS } from '../../types/enums';
 
 export class CreateCustomerDto {
+  @ApiProperty({
+    description: 'The first name of the customer.',
+    minLength: 3,
+    maxLength: 40,
+    example: 'Brandon',
+  })
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(40)
   readonly firstName: string;
 
+  @ApiProperty({
+    description: 'The last name of the customer.',
+    minLength: 3,
+    maxLength: 40,
+    example: 'Agüero',
+  })
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(40)
   readonly lastName: string;
 
+  @ApiProperty({
+    enum: GENDERS,
+    description: 'The gender of the customer',
+    example: 'male',
+  })
   @IsString()
   @IsNotEmpty()
   @IsEnum(GENDERS)
   readonly gender: GENDERS;
 
+  @ApiProperty({
+    description: 'The date of birth of the customer.',
+    example: '2004-08-02',
+  })
   @IsNotEmpty()
   @IsDate()
   @MinDate(new Date('1990-01-01'))
