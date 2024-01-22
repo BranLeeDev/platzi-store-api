@@ -83,6 +83,7 @@ export class ProductsController {
     description: 'Product updated successfully',
     type: Product,
   })
+  @ApiBody({ type: UpdateProductDto })
   updateProduct(
     @Param('id', ParseIntPipe) id: number,
     @Body() payload: UpdateProductDto,
