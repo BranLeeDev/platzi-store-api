@@ -9,13 +9,6 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-
-// Service imports
-import { UsersService } from '../../services/users/users.service';
-
-// DTO imports
-import { CreateUserDto } from '../../dtos/users/create-user.dto';
-import { UpdateUserDto } from '../../dtos/users/update-user.dto';
 import {
   ApiBody,
   ApiOperation,
@@ -23,6 +16,15 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
+// Service imports
+import { UsersService } from '../../services/users/users.service';
+
+// DTO imports
+import { CreateUserDto } from '../../dtos/users/create-user.dto';
+import { UpdateUserDto } from '../../dtos/users/update-user.dto';
+
+// Entity imports
 import { User } from '../../entities/user.entity';
 
 @ApiTags('users')
@@ -80,6 +82,9 @@ export class UsersController {
     status: 200,
     description: 'User updated successfully',
     type: User,
+  })
+  @ApiBody({
+    type: UpdateUserDto,
   })
   updateUser(
     @Param('id', ParseIntPipe) id: number,
