@@ -3,3 +3,8 @@ export enum ROLES {
   CUSTOMER = 'customer',
   SELLER = 'seller',
 }
+
+export enum GENDERS {
+  MALE = 'male',
+  FEMALE = 'female',
+}
