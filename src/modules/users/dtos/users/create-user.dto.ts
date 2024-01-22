@@ -22,7 +22,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(20)
-  username: string;
+  readonly username: string;
 
   @ApiProperty({
     description: 'Email address for the new user.',
@@ -36,7 +36,7 @@ export class CreateUserDto {
   @IsEmail()
   @MinLength(11)
   @MaxLength(320)
-  email: string;
+  readonly email: string;
 
   @ApiProperty({
     description: 'Password for the new user.',
@@ -48,7 +48,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(8)
   @MaxLength(100)
-  password: string;
+  readonly password: string;
 
   @ApiProperty({
     description: 'Role of the new user (optional).',
@@ -60,5 +60,5 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsOptional()
   @IsEnum(ROLES)
-  role?: ROLES;
+  readonly role?: ROLES;
 }
