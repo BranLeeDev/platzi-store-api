@@ -9,13 +9,6 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-
-// Service imports
-import { CategoriesService } from '../../services/categories/categories.service';
-
-// Dto imports
-import { CreateCategoryDto } from '../../dtos/categories/create-category.dto';
-import { UpdateCategoryDto } from '../../dtos/categories/update-category.dto';
 import {
   ApiBody,
   ApiOperation,
@@ -23,6 +16,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
+// Service imports
+import { CategoriesService } from '../../services/categories/categories.service';
+
+// Dto imports
+import { CreateCategoryDto } from '../../dtos/categories/create-category.dto';
+import { UpdateCategoryDto } from '../../dtos/categories/update-category.dto';
 
 // Entity imports
 import { Category } from '../../entities/category.entity';
