@@ -91,6 +91,14 @@ export class ProductsController {
     return this.productsService.update(id, payload);
   }
 
+  @Patch(':productId/category/:categoryId')
+  addCategoryToProduct(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ) {
+    return this.productsService.addCategoryToProduct(productId, categoryId);
+  }
+
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete product by ID',
@@ -100,5 +108,13 @@ export class ProductsController {
   @ApiResponse({ status: 200, description: 'Product deleted successfully' })
   deleteProduct(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.delete(id);
+  }
+
+  @Delete(':productId/category/:categoryId')
+  deleteCategory(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ) {
+    return this.productsService.removeCategoryByProduct(productId, categoryId);
   }
 }
