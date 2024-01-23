@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 
 // Entity imports
 import { Order } from '../../entities/order.entity';
+import { Customer } from '../../entities/customer.entity';
 
 // DTO imports
 import { CreateOrderDto } from '../../dtos/orders/create-order.dto';
@@ -16,6 +17,8 @@ import { UpdateOrderDto } from '../../dtos/orders/update-order.dto';
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
+    @InjectRepository(Customer)
+    private readonly customerRepo: Repository<Customer>,
   ) {}
 
   findAll() {
@@ -29,8 +32,15 @@ export class OrdersService {
   }
 
   async create(payload: CreateOrderDto) {
-    const newOrder = this.orderRepo.create(payload);
+    const newOrder = new Order();
+    if (payload.customerId) {
+      const customer = await this.customerRepo.findOneBy({
+        id: payload.customerId,
+      });
+      newOrder.customer = customer;
+    }
     await this.orderRepo.save(newOrder);
+
     return {
       message: 'Order created successfully',
       data: newOrder,
@@ -38,8 +48,11 @@ export class OrdersService {
   }
 
   async update(id: number, payload: UpdateOrderDto) {
-    const orderFound = await this.findOne(id);
-    this.orderRepo.merge(orderFound, payload);
+    const orderFound = await this.orderRepo.findOneBy({ id });
+    if (payload.customerId) {
+      const customer = await this.customerRepo.findOneBy({ id });
+      orderFound.customer = customer;
+    }
     const updatedResult = await this.orderRepo.save(orderFound);
 
     return {
