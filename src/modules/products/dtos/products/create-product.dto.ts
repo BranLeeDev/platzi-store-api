@@ -58,4 +58,10 @@ export class CreateProductDto {
   @IsPositive()
   @IsInt()
   readonly stock: number;
+
+  @IsNumber()
+  @IsInt()
+  @IsPositive()
+  @IsNotEmpty()
+  readonly brandId: number;
 }
