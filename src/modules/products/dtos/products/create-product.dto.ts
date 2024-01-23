@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -64,4 +65,11 @@ export class CreateProductDto {
   @IsPositive()
   @IsNotEmpty()
   readonly brandId: number;
+
+  @IsArray()
+  @IsNotEmpty()
+  @IsNumber({}, { each: true })
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  readonly categoriesIds: number[];
 }
