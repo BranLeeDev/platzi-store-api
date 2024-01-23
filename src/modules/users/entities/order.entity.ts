@@ -1,9 +1,15 @@
+// Third-party libraries
 import {
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+// Entity imports
+import { Customer } from './customer.entity';
 
 @Entity({ name: 'orders' })
 export class Order {
@@ -23,4 +29,8 @@ export class Order {
     default: () => 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @ManyToOne(() => Customer, (customer) => customer.orders)
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customer;
 }

@@ -1,13 +1,20 @@
+// Third-party libraries
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { GENDERS } from '../types/enums';
+
+// Entity imports
 import { User } from './user.entity';
+import { Order } from './order.entity';
+
+// Type imports
+import { GENDERS } from '../types/enums';
 
 @Entity({ name: 'customers' })
 export class Customer {
@@ -56,4 +63,7 @@ export class Customer {
 
   @OneToOne(() => User, (user) => user.customer, { nullable: true })
   user: User;
+
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
 }
