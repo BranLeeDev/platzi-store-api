@@ -1,8 +1,11 @@
 import {
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   MaxLength,
   MinLength,
@@ -61,4 +64,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(ROLES)
   readonly role?: ROLES;
+
+  @IsNumber()
+  @IsInt()
+  @IsPositive()
+  @IsOptional()
+  readonly customerId?: number;
 }
