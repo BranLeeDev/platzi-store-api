@@ -1,10 +1,18 @@
+// Third-party libraries
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+// Entity imports
+import { Customer } from './customer.entity';
+
+// Type imports
 import { ROLES } from '../types/enums';
 
 @Entity({ name: 'users' })
@@ -27,6 +35,10 @@ export class User {
     default: ROLES.CUSTOMER,
   })
   role: ROLES;
+
+  @OneToOne(() => Customer, (customer) => customer.user, { nullable: true })
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customer;
 
   @CreateDateColumn({
     type: 'timestamptz',

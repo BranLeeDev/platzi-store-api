@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { GENDERS } from '../types/enums';
+import { User } from './user.entity';
 
 @Entity({ name: 'customers' })
 export class Customer {
@@ -37,6 +39,9 @@ export class Customer {
     type: 'date',
   })
   dateOfBirth: Date;
+
+  @OneToOne(() => User, (user) => user.customer, { nullable: true })
+  user: User;
 
   @CreateDateColumn({
     type: 'timestamptz',
