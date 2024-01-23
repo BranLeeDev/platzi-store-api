@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 // Service imports
 import { BrandsService } from '../brands/brands.service';
@@ -14,6 +14,7 @@ import { UpdateProductDto } from '../../dtos/products/update-product.dto';
 
 // Entity imports
 import { Product } from '../../entities/product.entity';
+import { Category } from '../../entities/category.entity';
 
 @Injectable()
 export class ProductsService {
@@ -21,6 +22,8 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     private readonly brandsService: BrandsService,
+    @InjectRepository(Category)
+    private readonly categoryRepo: Repository<Category>,
   ) {}
 
   findAll() {
@@ -32,7 +35,7 @@ export class ProductsService {
   async findOne(id: number) {
     const product = await this.productRepo.findOne({
       where: { id },
-      relations: ['brand'],
+      relations: ['brand', 'categories'],
     });
     if (!product) throw new NotFoundException(`Product #${id} not Found`);
     return product;
@@ -44,6 +47,13 @@ export class ProductsService {
     if (payload.brandId) {
       const brand = await this.brandsService.findOne(payload.brandId);
       newProduct.brand = brand;
+    }
+
+    if (payload.categoriesIds) {
+      const categories = await this.categoryRepo.findBy({
+        id: In(payload.categoriesIds),
+      });
+      newProduct.categories = categories;
     }
 
     await this.productRepo.save(newProduct);
