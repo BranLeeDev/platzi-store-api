@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +13,7 @@ import {
 
 // Entity imports
 import { Brand } from './brand.entity';
+import { Category } from './category.entity';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -46,4 +49,15 @@ export class Product {
   @ManyToOne(() => Brand, (brand) => brand.products)
   @JoinColumn({ name: 'brand_id' })
   brand: Brand;
+
+  @ManyToMany(() => Category, (category) => category.products)
+  @JoinTable({
+    name: 'products_categories',
+    joinColumn: { name: 'product_id', referencedColumnName: 'id' },
+    inverseJoinColumn: {
+      name: 'category_id',
+      referencedColumnName: 'id',
+    },
+  })
+  categories: Category[];
 }
