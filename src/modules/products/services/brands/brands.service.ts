@@ -1,16 +1,20 @@
 // NestJS modules
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
 import { Repository } from 'typeorm';
 
-// Entity imports
-import { Brand } from '../../entities/brand.entity';
+// Entities
+import { Brand } from '../../entities';
 
-// DTO imports
-import { CreateBrandDto } from '../../dtos/brands/create-brand.dto';
-import { UpdateBrandDto } from '../../dtos/brands/update-brand.dto';
+// DTOs
+import { CreateBrandDto, UpdateBrandDto } from '../../dtos';
 
 @Injectable()
 export class BrandsService {
@@ -18,47 +22,57 @@ export class BrandsService {
     @InjectRepository(Brand) private readonly brandRepo: Repository<Brand>,
   ) {}
 
-  findAll() {
-    return this.brandRepo.find();
+  private async verifyBrandNameUniqueness(name: string) {
+    const isThereBrand = await this.brandRepo.findOne({
+      where: { name },
+    });
+    if (isThereBrand)
+      throw new HttpException(
+        'A brand with the same name already exists. Please choose a different name',
+        HttpStatus.CONFLICT,
+      );
   }
 
-  async findOne(id: number) {
+  async findAll() {
+    const brandsList = await this.brandRepo.find();
+    return brandsList;
+  }
+
+  async findOne(brandId: number) {
     const brand = await this.brandRepo.findOne({
-      where: { id },
+      where: { id: brandId },
       relations: ['products'],
     });
-    if (!brand) throw new NotFoundException(`Brand #${id} not Found`);
+    if (!brand) throw new NotFoundException(`Brand #${brandId} not Found`);
     return brand;
   }
 
-  async create(payload: CreateBrandDto) {
-    const newBrand = this.brandRepo.create(payload);
-    await this.brandRepo.save(newBrand);
-
-    return {
-      message: 'Brand created successfully',
-      data: newBrand,
-    };
+  async findBrandById(brandId: number) {
+    const brand = await this.brandRepo.findOneBy({ id: brandId });
+    if (!brand) throw new NotFoundException(`Brand #${brandId} not Found`);
+    return brand;
   }
 
-  async update(id: number, payload: UpdateBrandDto) {
-    const brandFound = await this.findOne(id);
-    this.brandRepo.merge(brandFound, payload);
+  async create(createBrandDto: CreateBrandDto) {
+    await this.verifyBrandNameUniqueness(createBrandDto.name);
+    const newBrand = this.brandRepo.create(createBrandDto);
+    const createdResult = await this.brandRepo.save(newBrand);
+    return createdResult;
+  }
+
+  async update(brandId: number, updateBrandDto: UpdateBrandDto) {
+    const brandFound = await this.findBrandById(brandId);
+    if (updateBrandDto.name) {
+      await this.verifyBrandNameUniqueness(updateBrandDto.name);
+    }
+    this.brandRepo.merge(brandFound, updateBrandDto);
     const updatedResult = await this.brandRepo.save(brandFound);
-
-    return {
-      message: 'Brand updated successfully',
-      data: updatedResult,
-    };
+    return updatedResult;
   }
 
-  async delete(id: number) {
-    const deletedResult = await this.findOne(id);
-    await this.brandRepo.delete(id);
-
-    return {
-      message: 'Brand deleted successfully',
-      data: deletedResult,
-    };
+  async delete(brandId: number) {
+    const deletedResult = await this.findBrandById(brandId);
+    await this.brandRepo.delete(brandId);
+    return deletedResult;
   }
 }

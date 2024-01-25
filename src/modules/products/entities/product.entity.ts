@@ -1,25 +1,18 @@
 // Third-party libraries
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
-// Entity imports
-import { Brand } from './brand.entity';
-import { Category } from './category.entity';
+// Entities
+import { Base, Brand, Category } from './index';
 
 @Entity({ name: 'products' })
-export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Product extends Base {
   @Column({ type: 'varchar', length: 50 })
   name: string;
 
@@ -31,20 +24,6 @@ export class Product {
 
   @Column({ type: 'int' })
   stock: number;
-
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
 
   @ManyToOne(() => Brand, (brand) => brand.products)
   @JoinColumn({ name: 'brand_id' })

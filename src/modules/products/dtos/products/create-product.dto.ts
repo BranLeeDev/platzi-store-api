@@ -1,4 +1,7 @@
+// NestJS modules
 import { ApiProperty } from '@nestjs/swagger';
+
+// Third-party libraries
 import {
   IsArray,
   IsInt,
@@ -25,10 +28,6 @@ export class CreateProductDto {
   @MaxLength(50)
   readonly name: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(10)
-  @MaxLength(1500)
   @ApiProperty({
     description: 'Description on the product',
     minLength: 10,
@@ -36,6 +35,10 @@ export class CreateProductDto {
     example:
       'The latest iPhone with a stunning Super Retina XDR display and powerful A15 Bionic chip',
   })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(1500)
   readonly description: string;
 
   @ApiProperty({
@@ -60,12 +63,20 @@ export class CreateProductDto {
   @IsInt()
   readonly stock: number;
 
+  @ApiProperty({
+    description: 'ID of the brand for the product',
+    example: 1,
+  })
   @IsNumber()
   @IsInt()
   @IsPositive()
   @IsNotEmpty()
   readonly brandId: number;
 
+  @ApiProperty({
+    description: 'Array of category IDs for the product',
+    example: [1, 2],
+  })
   @IsArray()
   @IsNotEmpty()
   @IsNumber({}, { each: true })

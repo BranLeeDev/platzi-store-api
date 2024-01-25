@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateCategoryDto {
   @ApiProperty({
-    description: 'Name of the category',
+    description: 'Name of the category. Should be unique',
     minLength: 3,
     maxLength: 30,
     example: 'Electronics',

@@ -1,37 +1,13 @@
 // Third-party libraries
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToMany } from 'typeorm';
 
 // Entity imports
-import { Product } from './product.entity';
+import { Base, Product } from './index';
 
 @Entity({ name: 'categories' })
-export class Category {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ type: 'varchar', length: '30' })
+export class Category extends Base {
+  @Column({ type: 'varchar', length: '30', unique: true })
   name: string;
-
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
 
   @ManyToMany(() => Product, (product) => product.categories)
   products: Product[];

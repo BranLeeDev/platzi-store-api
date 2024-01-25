@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -17,20 +19,28 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-// Service imports
-import { CategoriesService } from '../../services/categories/categories.service';
+// Entities
+import { Category } from '../../entities';
 
-// DTO imports
-import { CreateCategoryDto } from '../../dtos/categories/create-category.dto';
-import { UpdateCategoryDto } from '../../dtos/categories/update-category.dto';
+// DTOs
+import { CreateCategoryDto, UpdateCategoryDto } from '../../dtos';
 
-// Entity imports
-import { Category } from '../../entities/category.entity';
+// Services
+import { CategoriesService } from '../../services';
 
 @ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
+
+  private validateEmptyBody(body: any) {
+    if (Object.keys(body).length > 0) {
+      throw new HttpException(
+        'This endpoint does not accept content',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 
   @Get()
   @ApiOperation({
@@ -42,8 +52,18 @@ export class CategoriesController {
     description: 'List of all categories',
     type: [Category],
   })
-  getAllCategories() {
-    return this.categoriesService.findAll();
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getAllCategories(@Body() body: any) {
+    this.validateEmptyBody(body);
+    const res = await this.categoriesService.findAll();
+    return res;
   }
 
   @Post()
@@ -51,54 +71,144 @@ export class CategoriesController {
     summary: 'Create a category',
     description: 'Create a new category',
   })
+  @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({
     status: 201,
     description: 'Category created successfully',
     type: Category,
   })
-  @ApiBody({ type: CreateCategoryDto })
-  createCategory(@Body() payload: CreateCategoryDto) {
-    return this.categoriesService.create(payload);
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request - The category data is invalid or the name does not meet the requirements',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict - The category name must be unique',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async createCategory(@Body() payload: CreateCategoryDto) {
+    const res = await this.categoriesService.create(payload);
+    return {
+      message: 'Category created successfully',
+      data: res,
+    };
   }
 
-  @Get(':id')
+  @Get(':categoryId')
   @ApiOperation({
     summary: 'Get category by ID',
     description: 'Retrieve details of a specific category by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'categoryId',
+    type: 'number',
+    description: 'ID of the category',
+    example: 1,
+  })
   @ApiResponse({ status: 200, description: 'Category details', type: Category })
-  getCategory(@Param('id', ParseIntPipe) id: number) {
-    return this.categoriesService.findOne(id);
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not Found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getCategory(
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+    @Body() body: any,
+  ) {
+    this.validateEmptyBody(body);
+    const res = await this.categoriesService.findOne(categoryId);
+    return res;
   }
 
-  @Patch(':id')
+  @Patch(':categoryId')
   @ApiOperation({
     summary: 'Update category by ID',
     description: 'Update details of a specific category by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'categoryId',
+    type: 'number',
+    description: 'ID of the category to update',
+    example: 1,
+  })
+  @ApiBody({ type: UpdateCategoryDto })
   @ApiResponse({
     status: 200,
     description: 'Category updated successfully',
     type: Category,
   })
-  @ApiBody({ type: UpdateCategoryDto })
-  updateCategory(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() payload: UpdateCategoryDto,
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - The update data is invalid or incomplete',
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      'Category not found - The specified category ID does not exist',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict - Unable to update category due to data conflict',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async updateCategory(
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+    @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoriesService.update(id, payload);
+    const res = await this.categoriesService.update(
+      categoryId,
+      updateCategoryDto,
+    );
+    return {
+      message: 'Category updated successfully',
+      data: res,
+    };
   }
 
-  @Delete(':id')
+  @Delete(':categoryId')
   @ApiOperation({
     summary: 'Delete category by ID',
     description: 'Delete a specific category by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'categoryId',
+    type: 'number',
+    description: 'ID of the category to delete',
+    example: 1,
+  })
   @ApiResponse({ status: 200, description: 'Category deleted successfully' })
-  deleteCategory(@Param('id', ParseIntPipe) id: number) {
-    return this.categoriesService.delete(id);
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({ status: 404, description: 'Category not found' })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async deleteCategory(
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+    @Body() body: any,
+  ) {
+    this.validateEmptyBody(body);
+    const res = await this.categoriesService.delete(categoryId);
+    return {
+      message: 'Category deleted successfully',
+      data: res,
+    };
   }
 }

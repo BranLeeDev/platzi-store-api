@@ -1,9 +1,12 @@
+// NestJS modules
 import { ApiProperty } from '@nestjs/swagger';
+
+// Third-party libraries
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateBrandDto {
   @ApiProperty({
-    description: 'Name of the brand',
+    description: 'Name of the brand. Should be unique',
     minLength: 3,
     maxLength: 30,
     example: 'Apple',
