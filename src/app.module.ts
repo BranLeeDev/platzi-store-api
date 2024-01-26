@@ -16,6 +16,7 @@ import registers from './configs/registers';
 import { DatabaseModule } from './modules/database/database.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { UsersModule } from './modules/users/users.module';
     DatabaseModule,
     ProductsModule,
     UsersModule,
+    CloudinaryModule,
   ],
   controllers: [],
   providers: [
