@@ -3,7 +3,7 @@ import { IsInt, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 
 export class CreateOrderProductDto {
   @ApiProperty({
-    description: 'ID of the order for the new product.',
+    description: 'ID of the order for the new product',
     example: 1,
   })
   @IsNumber()
@@ -13,8 +13,8 @@ export class CreateOrderProductDto {
   readonly orderId: number;
 
   @ApiProperty({
-    description: 'ID of the product to be added to the order.',
-    example: 2,
+    description: 'ID of the product to be added to the order',
+    example: 1,
   })
   @IsNumber()
   @IsInt()
@@ -23,9 +23,8 @@ export class CreateOrderProductDto {
   readonly productId: number;
 
   @ApiProperty({
-    description: 'Quantity of the product to be added to the order.',
-
-    example: 3,
+    description: 'Quantity of the product to be added to the order',
+    example: 1,
   })
   @IsNumber()
   @IsInt()
