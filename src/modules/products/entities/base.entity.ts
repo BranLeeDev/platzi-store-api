@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   CreateDateColumn,
   PrimaryGeneratedColumn,
@@ -8,6 +9,7 @@ export class Base {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Exclude()
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamptz',
@@ -15,6 +17,7 @@ export class Base {
   })
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamptz',

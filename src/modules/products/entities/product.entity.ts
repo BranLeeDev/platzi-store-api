@@ -2,6 +2,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   JoinTable,
   ManyToMany,
@@ -19,6 +20,7 @@ export class Product extends Base {
   @Column({ type: 'text' })
   description: string;
 
+  @Index()
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
