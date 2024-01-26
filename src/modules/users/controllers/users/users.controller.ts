@@ -18,19 +18,23 @@ import {
 } from '@nestjs/swagger';
 
 // Service imports
-import { UsersService } from '../../services/users/users.service';
+import { UsersService } from '../../services';
 
 // DTO imports
-import { CreateUserDto } from '../../dtos/users/create-user.dto';
-import { UpdateUserDto } from '../../dtos/users/update-user.dto';
+import { CreateUserDto, UpdateUserDto } from '../../dtos';
 
 // Entity imports
-import { User } from '../../entities/user.entity';
+import { User } from '../../entities';
+
+// Module imports
+import { BaseController } from '../../../common/base.controller';
 
 @ApiTags('users')
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+export class UsersController extends BaseController {
+  constructor(private readonly usersService: UsersService) {
+    super();
+  }
 
   @Get()
   @ApiOperation({
@@ -42,8 +46,22 @@ export class UsersController {
     description: 'List of all users',
     type: [User],
   })
-  getAllUsers() {
-    return this.usersService.findAll();
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getAllUsers(@Body() body: any) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.usersService.findAll();
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Post()
@@ -51,60 +69,137 @@ export class UsersController {
     summary: 'Create a user',
     description: 'Create a new user',
   })
+  @ApiBody({ type: CreateUserDto })
   @ApiResponse({
     status: 201,
     description: 'User created successfully',
     type: User,
   })
-  @ApiBody({ type: CreateUserDto })
-  createUser(@Body() payload: CreateUserDto) {
-    return this.usersService.create(payload);
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request - The user data is invalid or the name does not meet the requirements',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    try {
+      const res = await this.usersService.create(createUserDto);
+      return {
+        message: 'User created successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Get(':id')
+  @Get(':userId')
   @ApiOperation({
     summary: 'Get user by ID',
     description: 'Retrieve details of a specific user by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'userId',
+    type: 'number',
+    description: 'ID of the user',
+    example: 1,
+  })
   @ApiResponse({ status: 200, description: 'User details', type: User })
-  getUser(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findOne(id);
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not Found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() body: any,
+  ) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.usersService.findOne(userId);
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Patch(':id')
+  @Patch(':userId')
   @ApiOperation({
     summary: 'Update user by ID',
     description: 'Update details of a specific user by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'userId',
+    type: 'number',
+    description: 'ID of the user to update',
+    example: 1,
+  })
+  @ApiBody({
+    type: UpdateUserDto,
+  })
   @ApiResponse({
     status: 200,
     description: 'User updated successfully',
     type: User,
   })
-  @ApiBody({
-    type: UpdateUserDto,
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - The update data is invalid or incomplete',
   })
-  updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() payload: UpdateUserDto,
+  @ApiResponse({
+    status: 404,
+    description: 'User not found - The specified user ID does not exist',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async updateUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(id, payload);
+    try {
+      const res = await this.usersService.update(userId, updateUserDto);
+      return {
+        message: 'User updated successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Delete(':id')
+  @Delete(':userId')
   @ApiOperation({
     summary: 'Delete user by ID',
     description: 'Delete a specific user by ID',
   })
   @ApiParam({
-    name: 'id',
+    name: 'userId',
     type: 'number',
-    description: 'ID of the user',
+    description: 'ID of the user to delete',
   })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  deleteUser(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.delete(id);
+  async deleteUser(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.usersService.delete(id);
+      return {
+        message: 'User deleted successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

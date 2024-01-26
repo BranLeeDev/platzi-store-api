@@ -9,21 +9,32 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-// Service imports
-import { OrdersService } from '../../services/orders/orders.service';
+// Entities
+import { Order } from '../../entities';
 
-// DTO imports
-import { CreateOrderDto } from '../../dtos/orders/create-order.dto';
-import { UpdateOrderDto } from '../../dtos/orders/update-order.dto';
+// DTOs
+import { CreateOrderDto, UpdateOrderDto } from '../../dtos';
 
-// Entity imports
-import { Order } from '../../entities/order.entity';
+// Services
+import { OrdersService } from '../../services';
 
+// Module imports
+import { BaseController } from '../../../common/base.controller';
+
+@ApiTags('orders')
 @Controller('orders')
-export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+export class OrdersController extends BaseController {
+  constructor(private readonly ordersService: OrdersService) {
+    super();
+  }
 
   @Get()
   @ApiOperation({
@@ -35,8 +46,22 @@ export class OrdersController {
     description: 'List of all orders',
     type: [Order],
   })
-  getAllOrders() {
-    return this.ordersService.findAll();
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getAllOrders(@Body() body: any) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.ordersService.findAll();
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Post()
@@ -44,62 +69,141 @@ export class OrdersController {
     summary: 'Create a order',
     description: 'Create a new order',
   })
+  @ApiBody({
+    type: CreateOrderDto,
+  })
   @ApiResponse({
     status: 201,
     description: 'Order created successfully',
   })
-  @ApiBody({
-    type: CreateOrderDto,
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request - The order data is invalid or the name does not meet the requirements',
   })
-  createOrder(@Body() payload: CreateOrderDto) {
-    return this.ordersService.create(payload);
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async createOrder(@Body() createOrderDto: CreateOrderDto) {
+    try {
+      const res = await this.ordersService.create(createOrderDto);
+      return {
+        message: 'Order created successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Get(':id')
+  @Get(':orderId')
   @ApiOperation({
     summary: 'Get order by ID',
     description: 'Retrieve details of a specific order by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'orderId',
+    type: 'number',
+    description: 'ID of the order',
+    example: 1,
+  })
   @ApiResponse({ status: 200, description: 'Order details', type: Order })
-  getOrder(@Param('id', ParseIntPipe) id: number) {
-    return this.ordersService.findOne(id);
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not Found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getOrder(
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Body() body: any,
+  ) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.ordersService.findOne(orderId);
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Patch(':id')
+  @Patch(':orderId')
   @ApiOperation({
     summary: 'Update order by ID',
     description: 'Update details of a specific order by ID',
   })
   @ApiParam({
-    name: 'id',
+    name: 'orderId',
     type: 'number',
+    description: 'ID of the order to update',
+    example: 1,
+  })
+  @ApiBody({
+    type: UpdateOrderDto,
   })
   @ApiResponse({
     status: 200,
     description: 'Order updated successfully',
   })
-  @ApiBody({
-    type: UpdateOrderDto,
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - The update data is invalid or incomplete',
   })
-  updateOrder(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() payload: UpdateOrderDto,
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found - The specified order ID does not exist',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async updateOrder(
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Body() updateOrderDto: UpdateOrderDto,
   ) {
-    return this.ordersService.update(id, payload);
+    try {
+      const res = await this.ordersService.update(orderId, updateOrderDto);
+      return {
+        message: 'Order updated successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Delete(':id')
+  @Delete(':orderId')
   @ApiOperation({
     summary: 'Delete order by ID',
     description: 'Delete a specif order by ID',
   })
   @ApiParam({
-    name: 'id',
+    name: 'orderId',
     type: 'number',
+    description: 'ID of the order to delete',
+    example: 1,
   })
   @ApiResponse({ status: 200, description: 'Order deleted successfully' })
-  deleteOrder(@Param('id', ParseIntPipe) id: number) {
-    return this.ordersService.delete(id);
+  async deleteOrder(
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Body() body: any,
+  ) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.ordersService.delete(orderId);
+      return {
+        message: 'Order deleted successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

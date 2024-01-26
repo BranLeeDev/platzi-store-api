@@ -5,72 +5,100 @@ import { InjectRepository } from '@nestjs/typeorm';
 // Third-party libraries
 import { Repository } from 'typeorm';
 
-// Entity imports
-import { Order } from '../../entities/order.entity';
-import { Customer } from '../../entities/customer.entity';
+// Entities
+import { Order } from '../../entities';
 
-// DTO imports
-import { CreateOrderDto } from '../../dtos/orders/create-order.dto';
-import { UpdateOrderDto } from '../../dtos/orders/update-order.dto';
+// DTOs
+import { CreateOrderDto, UpdateOrderDto } from '../../dtos';
+
+// Services
+import { CustomersService } from '../index';
+
+// Module imports
+import { BaseService } from 'src/modules/common/base.service';
 
 @Injectable()
-export class OrdersService {
+export class OrdersService extends BaseService {
   constructor(
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
-    @InjectRepository(Customer)
-    private readonly customerRepo: Repository<Customer>,
-  ) {}
-
-  findAll() {
-    return this.orderRepo.find();
+    private readonly customersService: CustomersService,
+  ) {
+    super();
   }
 
-  async findOne(id: number) {
-    const order = await this.orderRepo.findOne({
-      where: { id },
-      relations: ['productsOrder', 'productsOrder.product'],
-    });
-    if (!order) throw new NotFoundException(`Order #${id} not Found`);
-    return order;
+  async findAll() {
+    try {
+      const ordersList = await this.orderRepo.find();
+      return ordersList;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  async create(payload: CreateOrderDto) {
-    const newOrder = new Order();
-    if (payload.customerId) {
-      const customer = await this.customerRepo.findOneBy({
-        id: payload.customerId,
+  async findOrderById(orderId: number) {
+    try {
+      const order = await this.orderRepo.findOneBy({
+        id: orderId,
       });
-      newOrder.customer = customer;
+      if (!order) throw new NotFoundException(`Order #${orderId} not Found`);
+      return order;
+    } catch (error) {
+      this.catchError(error);
     }
-    await this.orderRepo.save(newOrder);
-
-    return {
-      message: 'Order created successfully',
-      data: newOrder,
-    };
   }
 
-  async update(id: number, payload: UpdateOrderDto) {
-    const orderFound = await this.orderRepo.findOneBy({ id });
-    if (payload.customerId) {
-      const customer = await this.customerRepo.findOneBy({ id });
-      orderFound.customer = customer;
+  async findOne(orderId: number) {
+    try {
+      const order = await this.orderRepo.findOne({
+        where: { id: orderId },
+        relations: ['productsOrder', 'productsOrder.product'],
+      });
+      if (!order) throw new NotFoundException(`Order #${orderId} not Found`);
+      return order;
+    } catch (error) {
+      this.catchError(error);
     }
-    const updatedResult = await this.orderRepo.save(orderFound);
-
-    return {
-      message: 'Order updated successfully',
-      data: updatedResult,
-    };
   }
 
-  async delete(id: number) {
-    const deletedResult = await this.findOne(id);
-    await this.orderRepo.delete(id);
+  async create(createOrderDto: CreateOrderDto) {
+    try {
+      const newOrder = new Order();
+      if (createOrderDto.customerId) {
+        const customer = await this.customersService.findCustomerById(
+          createOrderDto.customerId,
+        );
+        newOrder.customer = customer;
+      }
+      const createdOrder = await this.orderRepo.save(newOrder);
+      return createdOrder;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
 
-    return {
-      message: 'Order deleted successfully',
-      data: deletedResult,
-    };
+  async update(orderId: number, updateOrderDto: UpdateOrderDto) {
+    try {
+      const orderFound = await this.findOrderById(orderId);
+      if (updateOrderDto.customerId) {
+        const customer = await this.customersService.findCustomerById(
+          updateOrderDto.customerId,
+        );
+        orderFound.customer = customer;
+      }
+      const updatedOrder = await this.orderRepo.save(orderFound);
+      return updatedOrder;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
+
+  async delete(orderId: number) {
+    try {
+      const deletedOrder = await this.findOrderById(orderId);
+      await this.orderRepo.delete(orderId);
+      return deletedOrder;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

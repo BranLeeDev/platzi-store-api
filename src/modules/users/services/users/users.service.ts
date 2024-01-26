@@ -1,74 +1,122 @@
 // NestJS modules
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
 import { Repository } from 'typeorm';
 
-// Service imports
-import { CustomersService } from '../customers/customers.service';
-
-// DTO imports
-import { CreateUserDto } from '../../dtos/users/create-user.dto';
-import { UpdateUserDto } from '../../dtos/users/update-user.dto';
-
-// Entity imports
+// Entities
 import { User } from '../../entities/user.entity';
 
+// DTOs
+import { CreateUserDto, UpdateUserDto } from '../../dtos';
+
+// Services
+import { CustomersService } from '../customers/customers.service';
+
+// Module imports
+import { BaseService } from '../../../common/base.service';
+
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly customersService: CustomersService,
-  ) {}
-
-  findAll() {
-    return this.userRepo.find({
-      relations: ['customer'],
-    });
+  ) {
+    super();
   }
 
-  async findOne(id: number) {
-    const user = await this.userRepo.findOne({
-      where: { id },
-      relations: ['customer'],
-    });
-    if (!user) throw new NotFoundException(`User #${id} not Found`);
-    return user;
-  }
-
-  async create(payload: CreateUserDto) {
-    const newUser = this.userRepo.create(payload);
-    if (payload.customerId) {
-      const customer = await this.customersService.findOne(payload.customerId);
-      newUser.customer = customer;
+  private async checkUniqueEmailAndUsername(email: string, username: string) {
+    const existingEmail = await this.userRepo.findOne({ where: { email } });
+    if (existingEmail) {
+      throw new ConflictException(
+        `The email ${email} is already in use. Please choose a different email.`,
+      );
     }
-    await this.userRepo.save(newUser);
-
-    return {
-      message: 'User created successfully',
-      data: newUser,
-    };
+    const existingUsername = await this.userRepo.findOne({
+      where: { username },
+    });
+    if (existingUsername) {
+      throw new ConflictException(
+        `The username ${username} is already in use. Please choose a different username.`,
+      );
+    }
   }
 
-  async update(id: number, payload: UpdateUserDto) {
-    const userFound = await this.findOne(id);
-    this.userRepo.merge(userFound, payload);
-    const updatedResult = await this.userRepo.save(userFound);
-
-    return {
-      message: 'User updated successfully',
-      data: updatedResult,
-    };
+  async findAll() {
+    try {
+      const usersList = await this.userRepo.find({
+        relations: ['customer'],
+      });
+      return usersList;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  async delete(id: number) {
-    const deletedUser = await this.findOne(id);
-    await this.userRepo.delete(id);
+  async findUserById(userId: number) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) throw new NotFoundException(`User #${userId} not Found`);
+      return user;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
 
-    return {
-      message: 'User deleted successfully',
-      data: deletedUser,
-    };
+  async findOne(userId: number) {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { id: userId },
+        relations: ['customer'],
+      });
+      if (!user) throw new NotFoundException(`User #${userId} not Found`);
+      return user;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const newUser = this.userRepo.create(createUserDto);
+      const { email, username } = createUserDto;
+      await this.checkUniqueEmailAndUsername(email, username);
+      if (createUserDto.customerId) {
+        const customer = await this.customersService.findCustomerById(
+          createUserDto.customerId,
+        );
+        newUser.customer = customer;
+      }
+      const createdUser = await this.userRepo.save(newUser);
+      return createdUser;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
+
+  async update(userId: number, updateUserDto: UpdateUserDto) {
+    try {
+      const userFound = await this.findUserById(userId);
+      this.userRepo.merge(userFound, updateUserDto);
+      const updatedUser = await this.userRepo.save(userFound);
+      return updatedUser;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
+
+  async delete(userId: number) {
+    try {
+      const deletedUser = await this.findUserById(userId);
+      await this.userRepo.delete(userId);
+      return deletedUser;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

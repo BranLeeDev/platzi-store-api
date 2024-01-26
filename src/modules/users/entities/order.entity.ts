@@ -1,37 +1,11 @@
 // Third-party libraries
-import {
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
-// Entity imports
-import { Customer } from './customer.entity';
-import { OrderProduct } from './order-product.entity';
+// Entities
+import { Base, OrderProduct, Customer } from './index';
 
 @Entity({ name: 'orders' })
-export class Order {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
-
+export class Order extends Base {
   @ManyToOne(() => Customer, (customer) => customer.orders)
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;

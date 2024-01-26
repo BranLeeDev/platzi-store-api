@@ -4,8 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -28,18 +26,14 @@ import { Product } from '../../entities';
 // Services
 import { ProductsService } from '../../services';
 
+// Module imports
+import { BaseController } from '../../../common/base.controller';
+
 @ApiTags('products')
 @Controller('products')
-export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
-
-  private validateEmptyBody(body: any) {
-    if (Object.keys(body).length > 0) {
-      throw new HttpException(
-        'This endpoint does not accept content',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+export class ProductsController extends BaseController {
+  constructor(private readonly productsService: ProductsService) {
+    super();
   }
 
   @Get()
@@ -61,9 +55,13 @@ export class ProductsController {
     description: 'Internal Server Error - An unexpected error occurred',
   })
   async getAllProducts(@Body() body: any) {
-    this.validateEmptyBody(body);
-    const res = await this.productsService.findAll();
-    return res;
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.productsService.findAll();
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Post()
@@ -83,15 +81,24 @@ export class ProductsController {
       'Bad Request - The product data is invalid or the name does not meet the requirements',
   })
   @ApiResponse({
+    status: 409,
+    description:
+      'Conflict - One or more categories are not registered in the database',
+  })
+  @ApiResponse({
     status: 500,
     description: 'Internal Server Error - An unexpected error occurred',
   })
   async createProduct(@Body() createProductDto: CreateProductDto) {
-    const res = await this.productsService.create(createProductDto);
-    return {
-      message: 'Product created successfully',
-      data: res,
-    };
+    try {
+      const res = await this.productsService.create(createProductDto);
+      return {
+        message: 'Product created successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Get(':productId')
@@ -99,7 +106,12 @@ export class ProductsController {
     summary: 'Get product by ID',
     description: 'Retrieve details of a specific product by ID',
   })
-  @ApiParam({ name: 'productId', type: 'number' })
+  @ApiParam({
+    name: 'productId',
+    type: 'number',
+    description: 'ID of the product',
+    example: 1,
+  })
   @ApiResponse({ status: 200, description: 'Product details', type: Product })
   @ApiResponse({
     status: 400,
@@ -117,9 +129,13 @@ export class ProductsController {
     @Param('productId', ParseIntPipe) productId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.productsService.findOne(productId);
-    return res;
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.productsService.findOne(productId);
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Patch(':productId')
@@ -143,6 +159,11 @@ export class ProductsController {
     description: 'Product not found - The specified product ID does not exist',
   })
   @ApiResponse({
+    status: 409,
+    description:
+      'Conflict - One or more categories are not registered in the database',
+  })
+  @ApiResponse({
     status: 500,
     description: 'Internal Server Error - An unexpected error occurred',
   })
@@ -150,13 +171,18 @@ export class ProductsController {
     @Param('productId', ParseIntPipe) productId: number,
     @Body() payload: UpdateProductDto,
   ) {
-    const res = await this.productsService.update(productId, payload);
-    return {
-      message: 'Product updated successfully',
-      data: res,
-    };
+    try {
+      const res = await this.productsService.update(productId, payload);
+      return {
+        message: 'Product updated successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
+  @Patch(':productId/category/:categoryId')
   @ApiOperation({
     summary: 'Add a category to a product',
     description: 'Endpoint to associate a category with a specific product',
@@ -193,21 +219,24 @@ export class ProductsController {
     status: 500,
     description: 'Internal server error',
   })
-  @Patch(':productId/category/:categoryId')
   async addCategoryToProduct(
     @Param('productId', ParseIntPipe) productId: number,
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.productsService.addCategoryToProduct(
-      productId,
-      categoryId,
-    );
-    return {
-      message: 'Category successfully added to the product',
-      data: res,
-    };
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.productsService.addCategoryToProduct(
+        productId,
+        categoryId,
+      );
+      return {
+        message: 'Category successfully added to the product',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Delete(':productId')
@@ -229,12 +258,16 @@ export class ProductsController {
     @Param('productId', ParseIntPipe) productId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.productsService.delete(productId);
-    return {
-      message: 'Product deleted successfully',
-      data: res,
-    };
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.productsService.delete(productId);
+      return {
+        message: 'Product deleted successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Delete(':productId/category/:categoryId')
@@ -280,14 +313,18 @@ export class ProductsController {
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.productsService.removeCategoryByProduct(
-      productId,
-      categoryId,
-    );
-    return {
-      message: 'Category removed successfully from the product',
-      data: res,
-    };
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.productsService.removeCategoryByProduct(
+        productId,
+        categoryId,
+      );
+      return {
+        message: 'Category removed successfully from the product',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

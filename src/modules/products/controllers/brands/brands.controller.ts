@@ -4,8 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -28,18 +26,14 @@ import { CreateBrandDto, UpdateBrandDto } from '../../dtos';
 // Services
 import { BrandsService } from '../../services';
 
+// Module imports
+import { BaseController } from '../../../common/base.controller';
+
 @ApiTags('brands')
 @Controller('brands')
-export class BrandsController {
-  constructor(private readonly brandsService: BrandsService) {}
-
-  private validateEmptyBody(body: any) {
-    if (Object.keys(body).length > 0) {
-      throw new HttpException(
-        'This endpoint does not accept content',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+export class BrandsController extends BaseController {
+  constructor(private readonly brandsService: BrandsService) {
+    super();
   }
 
   @Get()
@@ -61,9 +55,13 @@ export class BrandsController {
     description: 'Internal Server Error - An unexpected error occurred',
   })
   async getAllBrands(@Body() body: any) {
-    this.validateEmptyBody(body);
-    const res = await this.brandsService.findAll();
-    return res;
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.brandsService.findAll();
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Post()
@@ -91,11 +89,15 @@ export class BrandsController {
     description: 'Internal Server Error - An unexpected error occurred',
   })
   async createBrand(@Body() createBrandDto: CreateBrandDto) {
-    const res = await this.brandsService.create(createBrandDto);
-    return {
-      message: 'Brand created successfully',
-      data: res,
-    };
+    try {
+      const res = await this.brandsService.create(createBrandDto);
+      return {
+        message: 'Brand created successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Get(':brandId')
@@ -123,9 +125,13 @@ export class BrandsController {
     @Param('brandId', ParseIntPipe) brandId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.brandsService.findOne(brandId);
-    return res;
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.brandsService.findOne(brandId);
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Patch(':brandId')
@@ -165,11 +171,15 @@ export class BrandsController {
     @Param('brandId', ParseIntPipe) id: number,
     @Body() updateBrandDto: UpdateBrandDto,
   ) {
-    const res = await this.brandsService.update(id, updateBrandDto);
-    return {
-      message: 'Brand updated successfully',
-      data: res,
-    };
+    try {
+      const res = await this.brandsService.update(id, updateBrandDto);
+      return {
+        message: 'Brand updated successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Delete(':brandId')
@@ -197,11 +207,15 @@ export class BrandsController {
     @Param('brandId', ParseIntPipe) brandId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.brandsService.delete(brandId);
-    return {
-      message: 'Brand deleted successfully',
-      data: res,
-    };
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.brandsService.delete(brandId);
+      return {
+        message: 'Brand deleted successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

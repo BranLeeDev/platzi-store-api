@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -7,19 +8,18 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  IsStrongPassword,
   MaxLength,
   MinLength,
 } from 'class-validator';
 import { ROLES } from '../../types/enums';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @ApiProperty({
-    description: 'Username for the new user.',
+    description: 'Username for the new user. Should be unique',
     minLength: 3,
     maxLength: 20,
     example: 'branleedev',
-    uniqueItems: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -28,11 +28,10 @@ export class CreateUserDto {
   readonly username: string;
 
   @ApiProperty({
-    description: 'Email address for the new user.',
+    description: 'Email address for the new user. Should be unique',
     minLength: 11,
     maxLength: 320,
     example: 'brandonaguerodeveloper@gmail.com',
-    uniqueItems: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -42,19 +41,20 @@ export class CreateUserDto {
   readonly email: string;
 
   @ApiProperty({
-    description: 'Password for the new user.',
+    description: 'Password for the new user',
     minLength: 8,
     maxLength: 100,
     example: 'W1RS}4u0',
   })
   @IsString()
   @IsNotEmpty()
+  @IsStrongPassword()
   @MinLength(8)
   @MaxLength(100)
   readonly password: string;
 
   @ApiProperty({
-    description: 'Role of the new user (optional).',
+    description: 'Role of the new user (optional)',
     enum: ROLES,
     required: false,
     example: 'admin',
@@ -65,6 +65,11 @@ export class CreateUserDto {
   @IsEnum(ROLES)
   readonly role?: ROLES;
 
+  @ApiProperty({
+    description: 'Customer ID associated with the user (optional)',
+    required: false,
+    example: 1,
+  })
   @IsNumber()
   @IsInt()
   @IsPositive()

@@ -1,25 +1,14 @@
 // Third-party libraries
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
-// Entity imports
-import { Customer } from './customer.entity';
+// Entities
+import { Base, Customer } from './index';
 
 // Type imports
 import { ROLES } from '../types/enums';
 
 @Entity({ name: 'users' })
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class User extends Base {
   @Column({ type: 'varchar', length: 20, unique: true })
   username: string;
 
@@ -35,20 +24,6 @@ export class User {
     default: ROLES.CUSTOMER,
   })
   role: ROLES;
-
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
 
   @OneToOne(() => Customer, (customer) => customer.user, { nullable: true })
   @JoinColumn({ name: 'customer_id' })

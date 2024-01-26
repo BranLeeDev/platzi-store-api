@@ -1,29 +1,41 @@
+// NestJS modules
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Order } from '../../entities/order.entity';
+
+// Third-party libraries
 import { Repository } from 'typeorm';
-import { Product } from 'src/modules/products/entities/product.entity';
-import { OrderProduct } from '../../entities/order-product.entity';
-import { CreateOrderProductDto } from '../../dtos/orders-products/create-order-product.dto';
+
+// Entities
+import { OrderProduct } from '../../entities';
+
+// DTOs
+import { CreateOrderProductDto } from '../../dtos';
+
+// Services
+import { OrdersService } from '../orders/orders.service';
+import { ProductsService } from '../../../products/services';
 
 @Injectable()
 export class OrdersProductsService {
   constructor(
-    @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
-    @InjectRepository(Product)
-    private readonly productRepo: Repository<Product>,
     @InjectRepository(OrderProduct)
     private readonly orderProductRepo: Repository<OrderProduct>,
+    private readonly productsService: ProductsService,
+    private readonly ordersService: OrdersService,
   ) {}
 
-  async create(payload: CreateOrderProductDto) {
-    const order = await this.orderRepo.findOneBy({ id: payload.orderId });
-    const product = await this.productRepo.findOneBy({ id: payload.productId });
+  async create(createOrderProductDto: CreateOrderProductDto) {
+    const order = await this.ordersService.findOrderById(
+      createOrderProductDto.orderId,
+    );
+    const product = await this.productsService.findProductById(
+      createOrderProductDto.productId,
+    );
     const productsOrder = new OrderProduct();
     productsOrder.order = order;
     productsOrder.product = product;
-    productsOrder.quantity = payload.quantity;
-
-    return this.orderProductRepo.save(productsOrder);
+    productsOrder.quantity = createOrderProductDto.quantity;
+    const createdOrderProduct = await this.orderProductRepo.save(productsOrder);
+    return createdOrderProduct;
   }
 }

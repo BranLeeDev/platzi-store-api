@@ -19,6 +19,6 @@ import {
   imports: [TypeOrmModule.forFeature([Brand, Category, Product])],
   controllers: [BrandsController, CategoriesController, ProductsController],
   providers: [BrandsService, CategoriesService, ProductsService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, ProductsService],
 })
 export class ProductsModule {}

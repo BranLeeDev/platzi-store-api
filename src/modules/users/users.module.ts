@@ -2,23 +2,24 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// Controller imports
-import { UsersController } from './controllers/users/users.controller';
-import { CustomersController } from './controllers/customers/customers.controller';
-import { OrdersController } from './controllers/orders/orders.controller';
-import { OrdersProductsController } from './controllers/orders-products/orders-products.controller';
+// Controllers
+import {
+  UsersController,
+  CustomersController,
+  OrdersController,
+  OrdersProductsController,
+} from './controllers';
 
-// Service imports
-import { UsersService } from './services/users/users.service';
-import { CustomersService } from './services/customers/customers.service';
-import { OrdersService } from './services/orders/orders.service';
-import { OrdersProductsService } from './services/orders-products/orders-products.service';
+// Services
+import {
+  UsersService,
+  CustomersService,
+  OrdersService,
+  OrdersProductsService,
+} from './services';
 
-// Entity imports
-import { User } from './entities/user.entity';
-import { Customer } from './entities/customer.entity';
-import { Order } from './entities/order.entity';
-import { OrderProduct } from './entities/order-product.entity';
+// Entities
+import { User, Customer, Order, OrderProduct } from './entities';
 
 // Module imports
 import { ProductsModule } from '../products/products.module';

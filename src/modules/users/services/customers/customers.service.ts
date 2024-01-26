@@ -5,57 +5,86 @@ import { InjectRepository } from '@nestjs/typeorm';
 // Third-party libraries
 import { Repository } from 'typeorm';
 
-// Entity imports
-import { Customer } from '../../entities/customer.entity';
+// Entities
+import { Customer } from '../../entities';
 
-// DTO imports
-import { CreateCustomerDto } from '../../dtos/customers/create-customer.dto';
-import { UpdateCustomerDto } from '../../dtos/customers/update-customer.dto';
+// DTOs
+import { CreateCustomerDto, UpdateCustomerDto } from '../../dtos';
+
+// Module imports
+import { BaseService } from '../../../common/base.service';
 
 @Injectable()
-export class CustomersService {
+export class CustomersService extends BaseService {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepo: Repository<Customer>,
-  ) {}
-
-  findAll() {
-    return this.customerRepo.find();
+  ) {
+    super();
   }
 
-  async findOne(id: number) {
-    const customer = await this.customerRepo.findOneBy({ id });
-    if (!customer) throw new NotFoundException(`Customer #${id} not Found`);
-    return customer;
+  async findAll() {
+    try {
+      const customersList = await this.customerRepo.find();
+      return customersList;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  async create(payload: CreateCustomerDto) {
-    const newCustomer = this.customerRepo.create(payload);
-    await this.customerRepo.save(newCustomer);
-    return {
-      message: 'Customer created successfully',
-      data: newCustomer,
-    };
+  async findCustomerById(customerId: number) {
+    try {
+      const customer = await this.customerRepo.findOneBy({ id: customerId });
+      if (!customer)
+        throw new NotFoundException(`Customer #${customerId} not Found`);
+      return customer;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  async update(id: number, payload: UpdateCustomerDto) {
-    const customerFound = await this.findOne(id);
-    this.customerRepo.merge(customerFound, payload);
-    const updatedResult = await this.customerRepo.save(customerFound);
-
-    return {
-      message: 'Customer updated successfully',
-      data: updatedResult,
-    };
+  async findOne(customerId: number) {
+    try {
+      const customer = await this.customerRepo.findOne({
+        where: { id: customerId },
+        relations: ['user'],
+      });
+      if (!customer)
+        throw new NotFoundException(`Customer #${customerId} not Found`);
+      return customer;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  async delete(id: number) {
-    const deletedCustomer = await this.findOne(id);
-    await this.customerRepo.delete(id);
+  async create(createCustomerDto: CreateCustomerDto) {
+    try {
+      const newCustomer = this.customerRepo.create(createCustomerDto);
+      const createdCustomer = await this.customerRepo.save(newCustomer);
+      return createdCustomer;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
 
-    return {
-      message: 'Customer deleted successfully',
-      data: deletedCustomer,
-    };
+  async update(customerId: number, updateCustomerDto: UpdateCustomerDto) {
+    try {
+      const customerFound = await this.findCustomerById(customerId);
+      this.customerRepo.merge(customerFound, updateCustomerDto);
+      const updatedCustomer = await this.customerRepo.save(customerFound);
+      return updatedCustomer;
+    } catch (error) {
+      this.catchError(error);
+    }
+  }
+
+  async delete(customerId: number) {
+    try {
+      const deletedCustomer = await this.findOne(customerId);
+      await this.customerRepo.delete(customerId);
+      return deletedCustomer;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

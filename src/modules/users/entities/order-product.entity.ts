@@ -1,37 +1,12 @@
 // Third-party libraries
-import {
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  CreateDateColumn,
-  Entity,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 
-// Entity imports
-import { Product } from '../../products/entities/product.entity';
-import { Order } from './order.entity';
+// Entities
+import { Product } from '../../products/entities';
+import { Base, Order } from './index';
 
 @Entity({ name: 'orders_products' })
-export class OrderProduct {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
-
+export class OrderProduct extends Base {
   @Column({ type: 'int' })
   quantity: number;
 

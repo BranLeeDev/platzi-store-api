@@ -16,12 +16,17 @@ import { Category } from '../../entities';
 // DTOs
 import { CreateCategoryDto, UpdateCategoryDto } from '../../dtos';
 
+// Module imports
+import { BaseService } from '../../../common/base.service';
+
 @Injectable()
-export class CategoriesService {
+export class CategoriesService extends BaseService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
-  ) {}
+  ) {
+    super();
+  }
 
   private async verifyCategoryNameUniqueness(name: string) {
     const isThereCategory = await this.categoryRepo.findOne({
@@ -35,47 +40,71 @@ export class CategoriesService {
   }
 
   async findAll() {
-    const brandsList = await this.categoryRepo.find();
-    return brandsList;
+    try {
+      const categoriesList = await this.categoryRepo.find();
+      return categoriesList;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   async findCategoryById(categoryId: number) {
-    const category = await this.categoryRepo.findOneBy({ id: categoryId });
-    if (!category)
-      throw new NotFoundException(`Category #${categoryId} not Found`);
-    return category;
+    try {
+      const category = await this.categoryRepo.findOneBy({ id: categoryId });
+      if (!category)
+        throw new NotFoundException(`Category #${categoryId} not Found`);
+      return category;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   async findOne(categoryId: number) {
-    const category = await this.categoryRepo.findOne({
-      where: { id: categoryId },
-      relations: ['products'],
-    });
-    if (!category)
-      throw new NotFoundException(`Category #${categoryId} not Found`);
-    return category;
+    try {
+      const category = await this.categoryRepo.findOne({
+        where: { id: categoryId },
+        relations: ['products'],
+      });
+      if (!category)
+        throw new NotFoundException(`Category #${categoryId} not Found`);
+      return category;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   async create(createCategoryDto: CreateCategoryDto) {
-    await this.verifyCategoryNameUniqueness(createCategoryDto.name);
-    const newCategory = this.categoryRepo.create(createCategoryDto);
-    const createdResult = await this.categoryRepo.save(newCategory);
-    return createdResult;
+    try {
+      await this.verifyCategoryNameUniqueness(createCategoryDto.name);
+      const newCategory = this.categoryRepo.create(createCategoryDto);
+      const createdCategory = await this.categoryRepo.save(newCategory);
+      return createdCategory;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   async update(categoryId: number, updateCategoryDto: UpdateCategoryDto) {
-    const categoryFound = await this.findCategoryById(categoryId);
-    if (updateCategoryDto.name) {
-      await this.verifyCategoryNameUniqueness(updateCategoryDto.name);
+    try {
+      const categoryFound = await this.findCategoryById(categoryId);
+      if (updateCategoryDto.name) {
+        await this.verifyCategoryNameUniqueness(updateCategoryDto.name);
+      }
+      this.categoryRepo.merge(categoryFound, updateCategoryDto);
+      const updatedCategory = await this.categoryRepo.save(categoryFound);
+      return updatedCategory;
+    } catch (error) {
+      this.catchError(error);
     }
-    this.categoryRepo.merge(categoryFound, updateCategoryDto);
-    const updatedResult = await this.categoryRepo.save(categoryFound);
-    return updatedResult;
   }
 
   async delete(categoryId: number) {
-    const deletedResult = await this.findCategoryById(categoryId);
-    await this.categoryRepo.delete(categoryId);
-    return deletedResult;
+    try {
+      const deletedCategory = await this.findCategoryById(categoryId);
+      await this.categoryRepo.delete(categoryId);
+      return deletedCategory;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

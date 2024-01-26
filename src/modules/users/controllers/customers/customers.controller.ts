@@ -17,20 +17,24 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-// Service imports
+// Entities
+import { Customer } from '../../entities';
+
+// DTOs
+import { CreateCustomerDto, UpdateCustomerDto } from '../../dtos';
+
+// Services
 import { CustomersService } from '../../services/customers/customers.service';
 
-// DTO imports
-import { CreateCustomerDto } from '../../dtos/customers/create-customer.dto';
-import { UpdateCustomerDto } from '../../dtos/customers/update-customer.dto';
-
-// Entity imports
-import { Customer } from '../../entities/customer.entity';
+// Module imports
+import { BaseController } from '../../../common/base.controller';
 
 @ApiTags('customers')
 @Controller('customers')
-export class CustomersController {
-  constructor(private readonly customersService: CustomersService) {}
+export class CustomersController extends BaseController {
+  constructor(private readonly customersService: CustomersService) {
+    super();
+  }
 
   @Get()
   @ApiOperation({
@@ -42,8 +46,22 @@ export class CustomersController {
     description: 'List of all customers',
     type: [Customer],
   })
-  getAllCustomers() {
-    return this.customersService.findAll();
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getAllCustomers(@Body() body: any) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.customersService.findAll();
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Post()
@@ -51,54 +69,151 @@ export class CustomersController {
     summary: 'Create a customer',
     description: 'Create a new customer',
   })
+  @ApiBody({ type: CreateCustomerDto })
   @ApiResponse({
     status: 201,
     description: 'Customer created successfully',
     type: Customer,
   })
-  @ApiBody({ type: CreateCustomerDto })
-  createCustomer(@Body() payload: CreateCustomerDto) {
-    return this.customersService.create(payload);
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request - The customer data is invalid or the name does not meet the requirements',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async createCustomer(@Body() createCustomerDto: CreateCustomerDto) {
+    try {
+      const res = await this.customersService.create(createCustomerDto);
+      return {
+        message: 'Customer created successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Get(':id')
+  @Get(':customerId')
   @ApiOperation({
     summary: 'Get customer by ID',
     description: 'Retrieve details of a specific customer by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'customerId',
+    type: 'number',
+    description: 'ID of the customer',
+    example: 1,
+  })
   @ApiResponse({ status: 200, description: 'Customer details', type: Customer })
-  getCustomer(@Param('id', ParseIntPipe) id: number) {
-    return this.customersService.findOne(id);
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Customer not Found',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async getCustomer(
+    @Param('customerId', ParseIntPipe) customerId: number,
+    @Body() body: any,
+  ) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.customersService.findOne(customerId);
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Patch(':id')
+  @Patch(':customerId')
   @ApiOperation({
     summary: 'Update customer by ID',
     description: 'Update details of a specific customer by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'customerId',
+    type: 'number',
+    description: 'ID of the customer to update',
+    example: 1,
+  })
+  @ApiBody({ type: UpdateCustomerDto })
   @ApiResponse({
     status: 200,
     description: 'Customer updated successfully',
     type: Customer,
   })
-  @ApiBody({ type: UpdateCustomerDto })
-  updateCustomer(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() payload: UpdateCustomerDto,
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - The update data is invalid or incomplete',
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      'Customer not found - The specified customer ID does not exist',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async updateCustomer(
+    @Param('customerId', ParseIntPipe) customerId: number,
+    @Body() updateCustomerDto: UpdateCustomerDto,
   ) {
-    return this.customersService.update(id, payload);
+    try {
+      const res = await this.customersService.update(
+        customerId,
+        updateCustomerDto,
+      );
+      return {
+        message: 'Customer updated successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
-  @Delete(':id')
+  @Delete(':customerId')
   @ApiOperation({
     summary: 'Delete customer by ID',
     description: 'Delete a specif customer by ID',
   })
-  @ApiParam({ name: 'id', type: 'number' })
+  @ApiParam({
+    name: 'customerId',
+    type: 'number',
+    description: 'ID of the customer to delete',
+    example: 1,
+  })
   @ApiResponse({ status: 200, description: 'Customer deleted successfully' })
-  deleteCustomer(@Param('id', ParseIntPipe) id: number) {
-    return this.customersService.delete(id);
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - This endpoint does not accept content',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error - An unexpected error occurred',
+  })
+  async deleteCustomer(
+    @Param('customerId', ParseIntPipe) customerId: number,
+    @Body() body: any,
+  ) {
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.customersService.delete(customerId);
+      return {
+        message: 'Customer deleted successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

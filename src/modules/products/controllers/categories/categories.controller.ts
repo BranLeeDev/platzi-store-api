@@ -4,8 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -28,18 +26,14 @@ import { CreateCategoryDto, UpdateCategoryDto } from '../../dtos';
 // Services
 import { CategoriesService } from '../../services';
 
+// Module imports
+import { BaseController } from '../../../common/base.controller';
+
 @ApiTags('categories')
 @Controller('categories')
-export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
-
-  private validateEmptyBody(body: any) {
-    if (Object.keys(body).length > 0) {
-      throw new HttpException(
-        'This endpoint does not accept content',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+export class CategoriesController extends BaseController {
+  constructor(private readonly categoriesService: CategoriesService) {
+    super();
   }
 
   @Get()
@@ -61,9 +55,13 @@ export class CategoriesController {
     description: 'Internal Server Error - An unexpected error occurred',
   })
   async getAllCategories(@Body() body: any) {
-    this.validateEmptyBody(body);
-    const res = await this.categoriesService.findAll();
-    return res;
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.categoriesService.findAll();
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Post()
@@ -91,11 +89,15 @@ export class CategoriesController {
     description: 'Internal Server Error - An unexpected error occurred',
   })
   async createCategory(@Body() payload: CreateCategoryDto) {
-    const res = await this.categoriesService.create(payload);
-    return {
-      message: 'Category created successfully',
-      data: res,
-    };
+    try {
+      const res = await this.categoriesService.create(payload);
+      return {
+        message: 'Category created successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Get(':categoryId')
@@ -126,9 +128,13 @@ export class CategoriesController {
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.categoriesService.findOne(categoryId);
-    return res;
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.categoriesService.findOne(categoryId);
+      return res;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Patch(':categoryId')
@@ -169,14 +175,18 @@ export class CategoriesController {
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    const res = await this.categoriesService.update(
-      categoryId,
-      updateCategoryDto,
-    );
-    return {
-      message: 'Category updated successfully',
-      data: res,
-    };
+    try {
+      const res = await this.categoriesService.update(
+        categoryId,
+        updateCategoryDto,
+      );
+      return {
+        message: 'Category updated successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   @Delete(':categoryId')
@@ -204,11 +214,15 @@ export class CategoriesController {
     @Param('categoryId', ParseIntPipe) categoryId: number,
     @Body() body: any,
   ) {
-    this.validateEmptyBody(body);
-    const res = await this.categoriesService.delete(categoryId);
-    return {
-      message: 'Category deleted successfully',
-      data: res,
-    };
+    try {
+      this.validateEmptyBody(body);
+      const res = await this.categoriesService.delete(categoryId);
+      return {
+        message: 'Category deleted successfully',
+        data: res,
+      };
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 }

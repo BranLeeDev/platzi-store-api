@@ -1,7 +1,7 @@
 // NestJS modules
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 // Third-party libraries
@@ -16,14 +16,13 @@ import registers from './configs/registers';
 import { DatabaseModule } from './modules/database/database.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
-import { GlobalExceptionsFilter } from './modules/common/global-exceptions.filter';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 100,
+        limit: 7,
       },
     ]),
     ConfigModule.forRoot({
@@ -44,10 +43,6 @@ import { GlobalExceptionsFilter } from './modules/common/global-exceptions.filte
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: GlobalExceptionsFilter,
     },
   ],
 })
