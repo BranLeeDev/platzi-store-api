@@ -2,7 +2,8 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
 // Entity imports
-import { Base, Product } from './index';
+import { Base } from '../../common/base.entity';
+import { Product } from './index';
 
 @Entity({ name: 'brands' })
 export class Brand extends Base {

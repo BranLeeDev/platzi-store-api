@@ -3,7 +3,8 @@ import { Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 
 // Entities
-import { Base, OrderProduct, Customer } from './index';
+import { Base } from '../../common/base.entity';
+import { OrderProduct, Customer } from './index';
 
 @Entity({ name: 'orders' })
 export class Order extends Base {

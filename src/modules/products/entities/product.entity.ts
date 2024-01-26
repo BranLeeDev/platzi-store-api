@@ -10,7 +10,8 @@ import {
 } from 'typeorm';
 
 // Entities
-import { Base, Brand, Category } from './index';
+import { Base } from '../../common/base.entity';
+import { Brand, Category } from './index';
 
 @Entity({ name: 'products' })
 export class Product extends Base {

@@ -2,8 +2,9 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 // Entities
+import { Base } from '../../common/base.entity';
+import { Order } from './index';
 import { Product } from '../../products/entities';
-import { Base, Order } from './index';
 
 @Entity({ name: 'orders_products' })
 export class OrderProduct extends Base {

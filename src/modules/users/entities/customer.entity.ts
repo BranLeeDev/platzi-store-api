@@ -2,7 +2,8 @@
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 
 // Entities
-import { Base, User, Order } from './index';
+import { Base } from '../../common/base.entity';
+import { User, Order } from './index';
 
 // Type imports
 import { GENDERS } from '../types/enums';

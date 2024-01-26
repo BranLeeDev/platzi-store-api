@@ -2,7 +2,8 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 
 // Entities
-import { Base, Customer } from './index';
+import { Base } from '../../common/base.entity';
+import { Customer } from './index';
 
 // Type imports
 import { ROLES } from '../types/enums';
