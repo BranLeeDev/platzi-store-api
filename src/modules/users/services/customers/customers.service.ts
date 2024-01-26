@@ -9,7 +9,11 @@ import { Repository } from 'typeorm';
 import { Customer } from '../../entities';
 
 // DTOs
-import { CreateCustomerDto, UpdateCustomerDto } from '../../dtos';
+import {
+  CreateCustomerDto,
+  FilterCustomersDto,
+  UpdateCustomerDto,
+} from '../../dtos';
 
 // Module imports
 import { BaseService } from '../../../common/base.service';
@@ -23,8 +27,16 @@ export class CustomersService extends BaseService {
     super();
   }
 
-  async findAll() {
+  async findAll(filterCustomersDto?: FilterCustomersDto) {
     try {
+      if (filterCustomersDto) {
+        const { limit, offset } = filterCustomersDto;
+        const customersList = await this.customerRepo.find({
+          take: limit,
+          skip: offset,
+        });
+        return customersList;
+      }
       const customersList = await this.customerRepo.find();
       return customersList;
     } catch (error) {

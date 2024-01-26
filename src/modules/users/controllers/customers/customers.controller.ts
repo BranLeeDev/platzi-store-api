@@ -8,11 +8,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -21,7 +23,11 @@ import {
 import { Customer } from '../../entities';
 
 // DTOs
-import { CreateCustomerDto, UpdateCustomerDto } from '../../dtos';
+import {
+  CreateCustomerDto,
+  UpdateCustomerDto,
+  FilterCustomersDto,
+} from '../../dtos';
 
 // Services
 import { CustomersService } from '../../services/customers/customers.service';
@@ -41,6 +47,19 @@ export class CustomersController extends BaseController {
     summary: 'Get all customers',
     description: 'Retrieve a list of all customers',
   })
+  @ApiQuery({
+    name: 'limit',
+    description: 'The maximum number of customers to return',
+    required: false,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'offset',
+    description:
+      'The number of customers to skip before starting to return items',
+    required: false,
+    example: 1,
+  })
   @ApiResponse({
     status: 200,
     description: 'List of all customers',
@@ -54,10 +73,13 @@ export class CustomersController extends BaseController {
     status: 500,
     description: 'Internal Server Error - An unexpected error occurred',
   })
-  async getAllCustomers(@Body() body: any) {
+  async getAllCustomers(
+    @Query() filterCustomersDto: FilterCustomersDto,
+    @Body() body: any,
+  ) {
     try {
       this.validateEmptyBody(body);
-      const res = await this.customersService.findAll();
+      const res = await this.customersService.findAll(filterCustomersDto);
       return res;
     } catch (error) {
       this.catchError(error);

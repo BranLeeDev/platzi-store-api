@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { Order } from '../../entities';
 
 // DTOs
-import { CreateOrderDto, UpdateOrderDto } from '../../dtos';
+import { CreateOrderDto, FilterOrdersDto, UpdateOrderDto } from '../../dtos';
 
 // Services
 import { CustomersService } from '../index';
@@ -26,8 +26,16 @@ export class OrdersService extends BaseService {
     super();
   }
 
-  async findAll() {
+  async findAll(filterOrdersDto?: FilterOrdersDto) {
     try {
+      if (filterOrdersDto) {
+        const { limit, offset } = filterOrdersDto;
+        const ordersList = await this.orderRepo.find({
+          take: limit,
+          skip: offset,
+        });
+        return ordersList;
+      }
       const ordersList = await this.orderRepo.find();
       return ordersList;
     } catch (error) {

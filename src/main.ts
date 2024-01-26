@@ -23,6 +23,9 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       disableErrorMessages: config.isPro,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 

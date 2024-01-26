@@ -4,3 +4,4 @@ export { CreateCategoryDto } from './categories/create-category.dto';
 export { UpdateCategoryDto } from './categories/update-category.dto';
 export { CreateProductDto } from './products/create-product.dto';
 export { UpdateProductDto } from './products/update-product.dto';
+export { FilterProductsDto } from './products/filter-products.dto';

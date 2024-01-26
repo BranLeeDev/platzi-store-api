@@ -8,17 +8,23 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
 // DTOs
-import { CreateProductDto, UpdateProductDto } from '../../dtos';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  FilterProductsDto,
+} from '../../dtos';
 
 // Entities
 import { Product } from '../../entities';
@@ -41,6 +47,19 @@ export class ProductsController extends BaseController {
     summary: 'Get all products',
     description: 'Retrieve a list of all products',
   })
+  @ApiQuery({
+    name: 'limit',
+    description: 'The maximum number of products to return',
+    required: false,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'offset',
+    description:
+      'The number of products to skip before starting to return items',
+    required: false,
+    example: 1,
+  })
   @ApiResponse({
     status: 200,
     description: 'List of all products',
@@ -54,10 +73,13 @@ export class ProductsController extends BaseController {
     status: 500,
     description: 'Internal Server Error - An unexpected error occurred',
   })
-  async getAllProducts(@Body() body: any) {
+  async getAllProducts(
+    @Query() filterProductsDto: FilterProductsDto,
+    @Body() body: any,
+  ) {
     try {
       this.validateEmptyBody(body);
-      const res = await this.productsService.findAll();
+      const res = await this.productsService.findAll(filterProductsDto);
       return res;
     } catch (error) {
       this.catchError(error);

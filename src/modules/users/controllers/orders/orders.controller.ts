@@ -8,11 +8,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -21,7 +23,7 @@ import {
 import { Order } from '../../entities';
 
 // DTOs
-import { CreateOrderDto, UpdateOrderDto } from '../../dtos';
+import { CreateOrderDto, FilterOrdersDto, UpdateOrderDto } from '../../dtos';
 
 // Services
 import { OrdersService } from '../../services';
@@ -41,6 +43,18 @@ export class OrdersController extends BaseController {
     summary: 'Get all orders',
     description: 'Retrieve a list of all orders',
   })
+  @ApiQuery({
+    name: 'limit',
+    description: 'The maximum number of orders to return',
+    required: false,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'offset',
+    description: 'The number of orders to skip before starting to return items',
+    required: false,
+    example: 1,
+  })
   @ApiResponse({
     status: 200,
     description: 'List of all orders',
@@ -54,10 +68,13 @@ export class OrdersController extends BaseController {
     status: 500,
     description: 'Internal Server Error - An unexpected error occurred',
   })
-  async getAllOrders(@Body() body: any) {
+  async getAllOrders(
+    @Query() filterOrdersDto: FilterOrdersDto,
+    @Body() body: any,
+  ) {
     try {
       this.validateEmptyBody(body);
-      const res = await this.ordersService.findAll();
+      const res = await this.ordersService.findAll(filterOrdersDto);
       return res;
     } catch (error) {
       this.catchError(error);
