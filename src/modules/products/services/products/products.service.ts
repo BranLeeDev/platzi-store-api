@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
-import { In, Repository } from 'typeorm';
+import { In, Repository, FindOptionsWhere, Between } from 'typeorm';
 
 // Entities
 import { Category, Product } from '../../entities';
@@ -62,9 +62,16 @@ export class ProductsService extends BaseService {
   async findAll(filterProductsDto?: FilterProductsDto) {
     try {
       if (filterProductsDto) {
+        const where: FindOptionsWhere<Product> = {};
         const { limit, offset } = filterProductsDto;
+        const { minPrice, maxPrice } = filterProductsDto;
+        if (minPrice && maxPrice) {
+          where.price = Between(minPrice, maxPrice);
+        }
+
         const productsList = await this.productRepo.find({
           relations: ['brand'],
+          where,
           take: limit,
           skip: offset,
         });

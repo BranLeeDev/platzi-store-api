@@ -60,6 +60,18 @@ export class ProductsController extends BaseController {
     required: false,
     example: 1,
   })
+  @ApiQuery({
+    name: 'minPrice',
+    description: 'The minimum price of products to filter',
+    required: false,
+    example: 100,
+  })
+  @ApiQuery({
+    name: 'maxPrice',
+    description: 'The maximum price of products to filter',
+    required: false,
+    example: 500,
+  })
   @ApiResponse({
     status: 200,
     description: 'List of all products',
