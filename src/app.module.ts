@@ -33,6 +33,10 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
       validationSchema: Joi.object({
         NODE_ENV: Joi.valid('development', 'test', 'production').required(),
         PORT: Joi.number().integer().positive().min(1000),
+        DATABASE_URL: Joi.string().min(20).required(),
+        CLOUDINARY_NAME: Joi.string().min(1).required(),
+        CLOUDINARY_API_KEY: Joi.number().positive().integer().required(),
+        CLOUDINARY_API_SECRET: Joi.string().min(1).required(),
       }),
     }),
     DatabaseModule,
