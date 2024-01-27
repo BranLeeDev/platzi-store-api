@@ -29,7 +29,7 @@ import registers from 'src/configs/registers';
         return {
           type: 'postgres',
           url: DATABASE_URL,
-          synchronize: true,
+          synchronize: false,
           autoLoadEntities: true,
         };
       },
