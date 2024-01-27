@@ -90,10 +90,12 @@ export class ImagesController extends BaseController {
   ) {
     try {
       const res = await this.imagesService.uploadImage(imageFile);
-      const { width, height, secure_url, bytes, format, public_id } = res;
+      const { width, height, secure_url, bytes, format, public_id, imageId } =
+        res;
       return {
         message: 'The image was uploaded successfully',
         data: {
+          id: imageId,
           widthPixels: width,
           heightPixels: height,
           imageUrl: secure_url,

@@ -21,6 +21,7 @@ import {
 
 // Services
 import { BrandsService, CategoriesService } from '../index';
+import { ImagesService } from '../../../cloudinary/services/images/images.service';
 
 // Module imports
 import { BaseService } from '../../../common/base.service';
@@ -34,6 +35,7 @@ export class ProductsService extends BaseService {
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
     private readonly categoriesService: CategoriesService,
+    private readonly imagesService: ImagesService,
   ) {
     super();
   }
@@ -70,7 +72,7 @@ export class ProductsService extends BaseService {
         }
 
         const productsList = await this.productRepo.find({
-          relations: ['brand'],
+          relations: ['brand', 'image'],
           where,
           take: limit,
           skip: offset,
@@ -78,7 +80,7 @@ export class ProductsService extends BaseService {
         return productsList;
       }
       const productsList = await this.productRepo.find({
-        relations: ['brand'],
+        relations: ['brand', 'image'],
       });
       return productsList;
     } catch (error) {
@@ -90,7 +92,7 @@ export class ProductsService extends BaseService {
     try {
       const product = await this.productRepo.findOne({
         where: { id: productId },
-        relations: relations || ['brand', 'categories'],
+        relations: relations || ['brand', 'image', 'categories'],
       });
       if (!product)
         throw new NotFoundException(`Product #${productId} not Found`);
@@ -118,6 +120,12 @@ export class ProductsService extends BaseService {
           createProductDto.brandId,
         );
         newProduct.brand = brand;
+      }
+      if (createProductDto.imageId) {
+        const image = await this.imagesService.findImageById(
+          createProductDto.imageId,
+        );
+        newProduct.image = image;
       }
       if (createProductDto.categoriesIds) {
         await this.validateCategoriesExist(createProductDto.categoriesIds);

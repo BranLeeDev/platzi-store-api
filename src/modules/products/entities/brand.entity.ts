@@ -1,8 +1,9 @@
 // Third-party libraries
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
 // Entity imports
 import { Base } from '../../common/base.entity';
+import { Image } from '../../cloudinary/entities/image.entity';
 import { Product } from './index';
 
 @Entity({ name: 'brands' })
@@ -15,4 +16,8 @@ export class Brand extends Base {
 
   @OneToMany(() => Product, (product) => product.brand)
   products: Product[];
+
+  @OneToOne(() => Image, (image) => image.brand)
+  @JoinColumn({ name: 'image_id' })
+  image: Image;
 }

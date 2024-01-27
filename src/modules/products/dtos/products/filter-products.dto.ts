@@ -18,7 +18,7 @@ export class FilterProductsDto {
   @IsNumber()
   @IsInt()
   @IsOptional()
-  limit?: number;
+  readonly limit?: number;
 
   @ApiProperty({
     description:
@@ -30,7 +30,7 @@ export class FilterProductsDto {
   @IsInt()
   @Min(0)
   @IsOptional()
-  offset?: number;
+  readonly offset?: number;
 
   @ApiProperty({
     description: 'The minimum price of products to filter',
@@ -41,7 +41,7 @@ export class FilterProductsDto {
   @IsInt()
   @IsPositive()
   @IsOptional()
-  minPrice?: number;
+  readonly minPrice?: number;
 
   @ApiProperty({
     description: 'The maximum price of products to filter',
@@ -53,5 +53,5 @@ export class FilterProductsDto {
   @IsInt()
   @IsPositive()
   @ValidateIf((item) => item.minPrice)
-  maxPrice?: number;
+  readonly maxPrice?: number;
 }

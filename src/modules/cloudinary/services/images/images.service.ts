@@ -48,16 +48,16 @@ export class ImagesService extends BaseService {
           }
 
           const createImageDto: CreateImageDto = {
-            widthPixels: result.width,
-            heightPixels: result.height,
-            imageUrl: result.secure_url,
+            width: result.width,
+            height: result.height,
+            image: result.secure_url,
             imageType: result.format as IMAGES_TYPES,
             bytesSize: result.bytes,
             publicId: result.public_id,
           };
-          await this.createImage(createImageDto);
+          const newImage = await this.createImage(createImageDto);
 
-          resolve(result);
+          resolve({ ...result, imageId: newImage.id });
         },
       );
 

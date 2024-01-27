@@ -74,6 +74,16 @@ export class CreateProductDto {
   readonly brandId: number;
 
   @ApiProperty({
+    description: 'ID of the image for the product',
+    example: 1,
+  })
+  @IsNumber()
+  @IsInt()
+  @IsPositive()
+  @IsNotEmpty()
+  readonly imageId: number;
+
+  @ApiProperty({
     description: 'Array of category IDs for the product',
     example: [1, 2],
   })

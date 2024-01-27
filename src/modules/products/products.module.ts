@@ -15,8 +15,14 @@ import {
   ProductsController,
 } from './controllers';
 
+// Module imports
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Brand, Category, Product])],
+  imports: [
+    TypeOrmModule.forFeature([Brand, Category, Product]),
+    CloudinaryModule,
+  ],
   controllers: [BrandsController, CategoriesController, ProductsController],
   providers: [BrandsService, CategoriesService, ProductsService],
   exports: [TypeOrmModule, ProductsService],

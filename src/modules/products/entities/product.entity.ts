@@ -7,10 +7,12 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToOne,
 } from 'typeorm';
 
 // Entities
 import { Base } from '../../common/base.entity';
+import { Image } from '../../cloudinary/entities/image.entity';
 import { Brand, Category } from './index';
 
 @Entity({ name: 'products' })
@@ -31,6 +33,10 @@ export class Product extends Base {
   @ManyToOne(() => Brand, (brand) => brand.products)
   @JoinColumn({ name: 'brand_id' })
   brand: Brand;
+
+  @OneToOne(() => Image, (image) => image.product)
+  @JoinColumn({ name: 'image_id' })
+  image: Image;
 
   @ManyToMany(() => Category, (category) => category.products)
   @JoinTable({

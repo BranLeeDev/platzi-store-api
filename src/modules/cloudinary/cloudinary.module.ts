@@ -36,5 +36,6 @@ import registers from 'src/configs/registers';
       },
     },
   ],
+  exports: [ImagesService],
 })
 export class CloudinaryModule {}

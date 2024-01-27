@@ -2,7 +2,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party libraries
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateBrandDto {
   @ApiProperty({
@@ -29,4 +37,13 @@ export class CreateBrandDto {
   @MinLength(15)
   @MaxLength(255)
   readonly description: string;
+
+  @ApiProperty({
+    description: 'ID of the image',
+    example: 1,
+  })
+  @IsNumber()
+  @IsInt()
+  @IsPositive()
+  readonly imageId: number;
 }

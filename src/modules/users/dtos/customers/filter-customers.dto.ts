@@ -11,7 +11,7 @@ export class FilterCustomersDto {
   @IsInt()
   @IsPositive()
   @IsOptional()
-  limit?: number;
+  readonly limit?: number;
 
   @ApiProperty({
     description:
@@ -23,5 +23,5 @@ export class FilterCustomersDto {
   @IsInt()
   @Min(0)
   @IsOptional()
-  offset?: number;
+  readonly offset?: number;
 }

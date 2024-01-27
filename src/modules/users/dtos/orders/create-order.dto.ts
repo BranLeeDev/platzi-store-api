@@ -9,5 +9,5 @@ export class CreateOrderDto {
   @IsNumber()
   @IsPositive()
   @IsInt()
-  customerId: number;
+  readonly customerId: number;
 }

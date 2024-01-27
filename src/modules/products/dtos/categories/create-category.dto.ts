@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateCategoryDto {
   @ApiProperty({
@@ -13,4 +21,13 @@ export class CreateCategoryDto {
   @MinLength(3)
   @MaxLength(30)
   readonly name: string;
+
+  @ApiProperty({
+    description: 'ID of the image for the category',
+    example: 1,
+  })
+  @IsNumber()
+  @IsInt()
+  @IsPositive()
+  readonly imageId: number;
 }

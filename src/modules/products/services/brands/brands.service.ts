@@ -16,6 +16,9 @@ import { Brand } from '../../entities';
 // DTOs
 import { CreateBrandDto, UpdateBrandDto } from '../../dtos';
 
+// Services
+import { ImagesService } from '../../../cloudinary/services/images/images.service';
+
 // Module imports
 import { BaseService } from '../../../common/base.service';
 
@@ -23,6 +26,7 @@ import { BaseService } from '../../../common/base.service';
 export class BrandsService extends BaseService {
   constructor(
     @InjectRepository(Brand) private readonly brandRepo: Repository<Brand>,
+    private readonly imagesService: ImagesService,
   ) {
     super();
   }
@@ -40,7 +44,7 @@ export class BrandsService extends BaseService {
 
   async findAll() {
     try {
-      const brandsList = await this.brandRepo.find();
+      const brandsList = await this.brandRepo.find({ relations: ['image'] });
       return brandsList;
     } catch (error) {
       this.catchError(error);
@@ -51,7 +55,7 @@ export class BrandsService extends BaseService {
     try {
       const brand = await this.brandRepo.findOne({
         where: { id: brandId },
-        relations: ['products'],
+        relations: ['products', 'image'],
       });
       if (!brand) {
         throw new NotFoundException(`Brand #${brandId} not Found`);
@@ -78,6 +82,12 @@ export class BrandsService extends BaseService {
     try {
       await this.verifyBrandNameUniqueness(createBrandDto.name);
       const newBrand = this.brandRepo.create(createBrandDto);
+      if (createBrandDto.imageId) {
+        const image = await this.imagesService.findImageById(
+          createBrandDto.imageId,
+        );
+        newBrand.image = image;
+      }
       const createdBrand = await this.brandRepo.save(newBrand);
       return createdBrand;
     } catch (error) {

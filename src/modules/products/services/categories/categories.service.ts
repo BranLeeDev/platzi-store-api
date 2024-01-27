@@ -16,6 +16,9 @@ import { Category } from '../../entities';
 // DTOs
 import { CreateCategoryDto, UpdateCategoryDto } from '../../dtos';
 
+// Services
+import { ImagesService } from '../../../cloudinary/services/images/images.service';
+
 // Module imports
 import { BaseService } from '../../../common/base.service';
 
@@ -24,6 +27,7 @@ export class CategoriesService extends BaseService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
+    private readonly imagesService: ImagesService,
   ) {
     super();
   }
@@ -41,7 +45,9 @@ export class CategoriesService extends BaseService {
 
   async findAll() {
     try {
-      const categoriesList = await this.categoryRepo.find();
+      const categoriesList = await this.categoryRepo.find({
+        relations: ['image'],
+      });
       return categoriesList;
     } catch (error) {
       this.catchError(error);
@@ -63,7 +69,7 @@ export class CategoriesService extends BaseService {
     try {
       const category = await this.categoryRepo.findOne({
         where: { id: categoryId },
-        relations: ['products'],
+        relations: ['products', 'image'],
       });
       if (!category)
         throw new NotFoundException(`Category #${categoryId} not Found`);
@@ -77,6 +83,12 @@ export class CategoriesService extends BaseService {
     try {
       await this.verifyCategoryNameUniqueness(createCategoryDto.name);
       const newCategory = this.categoryRepo.create(createCategoryDto);
+      if (createCategoryDto.imageId) {
+        const image = await this.imagesService.findImageById(
+          createCategoryDto.imageId,
+        );
+        newCategory.image = image;
+      }
       const createdCategory = await this.categoryRepo.save(newCategory);
       return createdCategory;
     } catch (error) {

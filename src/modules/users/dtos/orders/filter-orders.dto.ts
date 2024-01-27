@@ -11,7 +11,7 @@ export class FilterOrdersDto {
   @IsInt()
   @IsPositive()
   @IsOptional()
-  limit?: number;
+  readonly limit?: number;
 
   @ApiProperty({
     description: 'The number of orders to skip before starting to return items',
@@ -22,5 +22,5 @@ export class FilterOrdersDto {
   @IsInt()
   @Min(0)
   @IsOptional()
-  offset?: number;
+  readonly offset?: number;
 }
