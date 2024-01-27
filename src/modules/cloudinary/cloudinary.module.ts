@@ -1,11 +1,25 @@
+// NestJS modules
 import { Module } from '@nestjs/common';
-import { ImagesService } from './services/images/images.service';
-import { ImagesController } from './controllers/images/images.controller';
-import registers from 'src/configs/registers';
 import { ConfigType } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+// Third-party libraries
 import { v2 as cloudinary } from 'cloudinary';
 
+// Entities
+import { Image } from './entities/image.entity';
+
+// Services
+import { ImagesService } from './services/images/images.service';
+
+// Controllers
+import { ImagesController } from './controllers/images/images.controller';
+
+// Config imports
+import registers from 'src/configs/registers';
+
 @Module({
+  imports: [TypeOrmModule.forFeature([Image])],
   controllers: [ImagesController],
   providers: [
     ImagesService,
