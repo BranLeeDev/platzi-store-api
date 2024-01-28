@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 // Entities
 import { User } from '../../entities/user.entity';
@@ -68,6 +69,13 @@ export class UsersService extends BaseService {
     }
   }
 
+  async findUserByEmail(email: string) {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user)
+      throw new NotFoundException('User with the provided email not found');
+    return user;
+  }
+
   async findOne(userId: number) {
     try {
       const user = await this.userRepo.findOne({
@@ -84,6 +92,8 @@ export class UsersService extends BaseService {
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = this.userRepo.create(createUserDto);
+      const hashPassword = await bcrypt.hash(newUser.password, 10);
+      newUser.password = hashPassword;
       const { email, username } = createUserDto;
       await this.checkUniqueEmailAndUsername(email, username);
       if (createUserDto.customerId) {
@@ -92,6 +102,7 @@ export class UsersService extends BaseService {
         );
         newUser.customer = customer;
       }
+
       const createdUser = await this.userRepo.save(newUser);
       return createdUser;
     } catch (error) {

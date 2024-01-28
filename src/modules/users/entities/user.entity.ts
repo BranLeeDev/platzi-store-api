@@ -7,6 +7,7 @@ import { Customer } from './index';
 
 // Type imports
 import { ROLES } from '../types/enums';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'users' })
 export class User extends Base {
@@ -16,6 +17,7 @@ export class User extends Base {
   @Column({ type: 'varchar', length: 320, unique: true })
   email: string;
 
+  @Exclude()
   @Column({ type: 'varchar', length: 100 })
   password: string;
 
