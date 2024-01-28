@@ -13,6 +13,7 @@ import { CreateOrderDto, FilterOrdersDto, UpdateOrderDto } from '../../dtos';
 
 // Services
 import { CustomersService } from '../index';
+import { UsersService } from '../users/users.service';
 
 // Module imports
 import { BaseService } from 'src/modules/common/base.service';
@@ -22,6 +23,7 @@ export class OrdersService extends BaseService {
   constructor(
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
     private readonly customersService: CustomersService,
+    private readonly usersService: UsersService,
   ) {
     super();
   }
@@ -53,6 +55,16 @@ export class OrdersService extends BaseService {
     } catch (error) {
       this.catchError(error);
     }
+  }
+
+  async ordersByUser(userId: number) {
+    const user = await this.usersService.findOne(userId);
+    const customerId = user.customer.id;
+    const ordersList = await this.orderRepo.find({
+      where: { customer: { id: customerId } },
+      relations: ['productsOrder.product'],
+    });
+    return ordersList;
   }
 
   async findOne(orderId: number) {

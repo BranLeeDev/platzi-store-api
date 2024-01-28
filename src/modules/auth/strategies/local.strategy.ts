@@ -7,7 +7,6 @@ import { Strategy } from 'passport-local';
 
 // Services
 import { AuthService } from '../services/auth/auth.service';
-import { LoginDto } from '../dtos/login.dto';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
@@ -19,8 +18,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   }
 
   async validate(email: string, password: string) {
-    const loginDto: LoginDto = { email, password };
-    const user = await this.authService.validateUser(loginDto);
+    const user = await this.authService.validateUser(email, password);
     if (!user) {
       throw new UnauthorizedException(
         'Invalid email or password. Access not authorized',

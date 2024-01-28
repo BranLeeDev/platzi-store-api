@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -31,10 +32,18 @@ import { Product } from '../../entities';
 
 // Services
 import { ProductsService } from '../../services';
+import { Public } from '../../../auth/decorators/public.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
+import { Roles } from '../../../auth/decorators/roles.decorator';
 
 // Module imports
 import { BaseController } from '../../../common/base.controller';
 
+// Types imports
+import { ROLES } from '../../../users/types/enums';
+import { RolesGuard } from 'src/modules/auth/guards/roles/roles.guard';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('products')
 @Controller('products')
 export class ProductsController extends BaseController {
@@ -42,6 +51,7 @@ export class ProductsController extends BaseController {
     super();
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Get all products',
@@ -98,6 +108,7 @@ export class ProductsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Post()
   @ApiOperation({
     summary: 'Create a product',
@@ -135,6 +146,7 @@ export class ProductsController extends BaseController {
     }
   }
 
+  @Public()
   @Get(':productId')
   @ApiOperation({
     summary: 'Get product by ID',
@@ -172,6 +184,7 @@ export class ProductsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Patch(':productId')
   @ApiOperation({
     summary: 'Update product by ID',
@@ -216,6 +229,7 @@ export class ProductsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Patch(':productId/category/:categoryId')
   @ApiOperation({
     summary: 'Add a category to a product',
@@ -273,6 +287,7 @@ export class ProductsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Delete(':productId')
   @ApiOperation({
     summary: 'Delete product by ID',
@@ -304,6 +319,7 @@ export class ProductsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Delete(':productId/category/:categoryId')
   @ApiOperation({
     summary: 'Delete a category from a product',

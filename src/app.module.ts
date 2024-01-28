@@ -38,6 +38,7 @@ import { AuthModule } from './modules/auth/auth.module';
         CLOUDINARY_NAME: Joi.string().min(1).required(),
         CLOUDINARY_API_KEY: Joi.number().positive().integer().required(),
         CLOUDINARY_API_SECRET: Joi.string().min(1).required(),
+        JWT_SECRET: Joi.string().required(),
       }),
     }),
     DatabaseModule,

@@ -23,6 +23,7 @@ import { User, Customer, Order, OrderProduct } from './entities';
 
 // Module imports
 import { ProductsModule } from '../products/products.module';
+import { ProfileController } from './controllers/profile/profile.controller';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ProductsModule } from '../products/products.module';
     CustomersController,
     OrdersController,
     OrdersProductsController,
+    ProfileController,
   ],
   providers: [
     UsersService,
