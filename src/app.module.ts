@@ -17,6 +17,7 @@ import { DatabaseModule } from './modules/database/database.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     ProductsModule,
     UsersModule,
     CloudinaryModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [
