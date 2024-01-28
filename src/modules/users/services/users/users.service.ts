@@ -70,10 +70,12 @@ export class UsersService extends BaseService {
   }
 
   async findUserByEmail(email: string) {
-    const user = await this.userRepo.findOne({ where: { email } });
-    if (!user)
-      throw new NotFoundException('User with the provided email not found');
-    return user;
+    try {
+      const user = await this.userRepo.findOne({ where: { email } });
+      return user;
+    } catch (error) {
+      this.catchError(error);
+    }
   }
 
   async findOne(userId: number) {

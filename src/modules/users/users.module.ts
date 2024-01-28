@@ -41,5 +41,6 @@ import { ProductsModule } from '../products/products.module';
     OrdersService,
     OrdersProductsService,
   ],
+  exports: [UsersService],
 })
 export class UsersModule {}
