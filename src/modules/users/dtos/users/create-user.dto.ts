@@ -11,6 +11,7 @@ import {
   IsStrongPassword,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { ROLES } from '../../types/enums';
 
@@ -57,13 +58,22 @@ export class CreateUserDto {
     description: 'Role of the new user (optional)',
     enum: ROLES,
     required: false,
-    example: 'admin',
+    example: 'customer',
   })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
   @IsEnum(ROLES)
   readonly role?: ROLES;
+
+  @ApiProperty({
+    description: 'Master password (required if role is admin)',
+    required: false,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @ValidateIf((object) => object.role === 'admin')
+  readonly masterPassword?: string;
 
   @ApiProperty({
     description: 'Customer ID associated with the user (optional)',

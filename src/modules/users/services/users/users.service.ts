@@ -1,8 +1,10 @@
 // NestJS modules
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -22,11 +24,18 @@ import { CustomersService } from '../customers/customers.service';
 // Module imports
 import { BaseService } from '../../../common/base.service';
 
+// Config imports
+import registers from '../../../../configs/registers';
+import { ConfigType } from '@nestjs/config';
+import { ROLES } from '../../types/enums';
+
 @Injectable()
 export class UsersService extends BaseService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly customersService: CustomersService,
+    @Inject(registers.KEY)
+    private readonly registerService: ConfigType<typeof registers>,
   ) {
     super();
   }
@@ -94,6 +103,11 @@ export class UsersService extends BaseService {
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = this.userRepo.create(createUserDto);
+      if (
+        createUserDto.masterPassword !== this.registerService.masterPassword &&
+        createUserDto.role === ROLES.ADMIN
+      )
+        throw new UnauthorizedException('Invalid master password');
       const hashPassword = await bcrypt.hash(newUser.password, 10);
       newUser.password = hashPassword;
       const { email, username } = createUserDto;

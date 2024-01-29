@@ -24,6 +24,7 @@ export default registerAs('registers', () => {
         apiSecret: process.env.CLOUDINARY_API_SECRET,
       },
       jwtSecret: process.env.JWT_SECRET,
+      masterPassword: process.env.MASTER_PASSWORD,
     };
   }
 
@@ -44,6 +45,7 @@ export default registerAs('registers', () => {
         apiSecret: process.env.CLOUDINARY_API_SECRET,
       },
       jwtSecret: process.env.JWT_SECRET,
+      masterPassword: process.env.MASTER_PASSWORD,
     };
   }
 });

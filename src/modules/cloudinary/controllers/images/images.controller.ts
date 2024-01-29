@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -25,6 +26,16 @@ import { ImagesService } from '../../services/images/images.service';
 // Controllers
 import { BaseController } from '../../../common/base.controller';
 
+// Types imports
+import { ROLES } from '../../../users/types/enums';
+
+// Auth imports
+import { RolesGuard } from '../../../auth/guards/roles/roles.guard';
+import { Public } from '../../../auth/decorators/public.decorator';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('images')
 @Controller('images')
 export class ImagesController extends BaseController {
@@ -32,6 +43,7 @@ export class ImagesController extends BaseController {
     super();
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Get all images',
@@ -60,6 +72,7 @@ export class ImagesController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Post()
   @UseInterceptors(FileInterceptor('imageFile'))
   @ApiOperation({ summary: 'Upload an image' })
@@ -110,6 +123,7 @@ export class ImagesController extends BaseController {
     }
   }
 
+  @Public()
   @Get(':imageId')
   @ApiOperation({
     summary: 'Get image by ID',
@@ -147,6 +161,7 @@ export class ImagesController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Delete(':imageId')
   @ApiOperation({
     summary: 'Delete image by ID',
