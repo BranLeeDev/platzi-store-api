@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -29,6 +30,16 @@ import { CategoriesService } from '../../services';
 // Module imports
 import { BaseController } from '../../../common/base.controller';
 
+// TypeImports
+import { ROLES } from '../../../users/types/enums';
+
+// Auth imports
+import { RolesGuard } from '../../../auth/guards/roles/roles.guard';
+import { Public } from '../../../auth/decorators/public.decorator';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('categories')
 @Controller('categories')
 export class CategoriesController extends BaseController {
@@ -36,6 +47,7 @@ export class CategoriesController extends BaseController {
     super();
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Get all categories',
@@ -64,6 +76,7 @@ export class CategoriesController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Post()
   @ApiOperation({
     summary: 'Create a category',
@@ -100,6 +113,7 @@ export class CategoriesController extends BaseController {
     }
   }
 
+  @Public()
   @Get(':categoryId')
   @ApiOperation({
     summary: 'Get category by ID',
@@ -137,6 +151,7 @@ export class CategoriesController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Patch(':categoryId')
   @ApiOperation({
     summary: 'Update category by ID',
@@ -189,6 +204,7 @@ export class CategoriesController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Delete(':categoryId')
   @ApiOperation({
     summary: 'Delete category by ID',

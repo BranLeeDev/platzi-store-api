@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -29,6 +30,16 @@ import { BrandsService } from '../../services';
 // Module imports
 import { BaseController } from '../../../common/base.controller';
 
+// Types imports
+import { ROLES } from '../../../users/types/enums';
+
+// Auth imports
+import { RolesGuard } from '../../../auth/guards/roles/roles.guard';
+import { Public } from '../../../auth/decorators/public.decorator';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
+
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('brands')
 @Controller('brands')
 export class BrandsController extends BaseController {
@@ -36,6 +47,7 @@ export class BrandsController extends BaseController {
     super();
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Get all brands',
@@ -64,6 +76,7 @@ export class BrandsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Post()
   @ApiOperation({
     summary: 'Create a brand',
@@ -100,6 +113,7 @@ export class BrandsController extends BaseController {
     }
   }
 
+  @Public()
   @Get(':brandId')
   @ApiOperation({
     summary: 'Get brand by ID',
@@ -134,6 +148,7 @@ export class BrandsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Patch(':brandId')
   @ApiOperation({
     summary: 'Update brand by ID',
@@ -182,6 +197,7 @@ export class BrandsController extends BaseController {
     }
   }
 
+  @Roles(ROLES.ADMIN)
   @Delete(':brandId')
   @ApiOperation({
     summary: 'Delete brand by ID',

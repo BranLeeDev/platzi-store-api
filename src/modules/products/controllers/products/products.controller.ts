@@ -32,16 +32,18 @@ import { Product } from '../../entities';
 
 // Services
 import { ProductsService } from '../../services';
-import { Public } from '../../../auth/decorators/public.decorator';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
-import { Roles } from '../../../auth/decorators/roles.decorator';
 
 // Module imports
 import { BaseController } from '../../../common/base.controller';
 
 // Types imports
 import { ROLES } from '../../../users/types/enums';
-import { RolesGuard } from 'src/modules/auth/guards/roles/roles.guard';
+
+// Auth imports
+import { RolesGuard } from '../../../auth/guards/roles/roles.guard';
+import { Public } from '../../../auth/decorators/public.decorator';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('products')
