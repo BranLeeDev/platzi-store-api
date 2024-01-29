@@ -83,6 +83,6 @@ export class CreateUserDto {
   @IsNumber()
   @IsInt()
   @IsPositive()
-  @IsOptional()
+  @ValidateIf((object) => object.role === 'customer')
   readonly customerId?: number;
 }

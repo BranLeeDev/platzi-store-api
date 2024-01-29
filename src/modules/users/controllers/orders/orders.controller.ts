@@ -6,24 +6,25 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiBody,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 
 // Entities
 import { Order } from '../../entities';
 
 // DTOs
-import { CreateOrderDto, FilterOrdersDto, UpdateOrderDto } from '../../dtos';
+import { FilterOrdersDto } from '../../dtos';
 
 // Services
 import { OrdersService } from '../../services';
@@ -31,6 +32,13 @@ import { OrdersService } from '../../services';
 // Module imports
 import { BaseController } from '../../../common/base.controller';
 
+// Auth imports
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { ROLES } from '../../types/enums';
+import { PayloadToken } from 'src/modules/auth/types/interfaces';
+
+@UseGuards(JwtAuthGuard)
 @ApiTags('orders')
 @Controller('orders')
 export class OrdersController extends BaseController {
@@ -38,6 +46,7 @@ export class OrdersController extends BaseController {
     super();
   }
 
+  @Roles(ROLES.ADMIN)
   @Get()
   @ApiOperation({
     summary: 'Get all orders',
@@ -86,25 +95,24 @@ export class OrdersController extends BaseController {
     summary: 'Create a order',
     description: 'Create a new order',
   })
-  @ApiBody({
-    type: CreateOrderDto,
-  })
   @ApiResponse({
     status: 201,
     description: 'Order created successfully',
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Bad Request - The order data is invalid or the name does not meet the requirements',
+    description: 'Bad request - This endpoint does not accept content',
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error - An unexpected error occurred',
   })
-  async createOrder(@Body() createOrderDto: CreateOrderDto) {
+  async createOrder(@Req() req: Request, @Body() body: any) {
     try {
-      const res = await this.ordersService.create(createOrderDto);
+      this.validateEmptyBody(body);
+      const payloadToken = req.user as PayloadToken;
+      const userIdFromToken = payloadToken.sub;
+      const res = await this.ordersService.create(userIdFromToken);
       return {
         message: 'Order created successfully',
         data: res,
@@ -141,56 +149,13 @@ export class OrdersController extends BaseController {
   async getOrder(
     @Param('orderId', ParseIntPipe) orderId: number,
     @Body() body: any,
+    @Req() req: Request,
   ) {
     try {
       this.validateEmptyBody(body);
-      const res = await this.ordersService.findOne(orderId);
+      const payloadToken = req.user as PayloadToken;
+      const res = await this.ordersService.findOne(orderId, payloadToken);
       return res;
-    } catch (error) {
-      this.catchError(error);
-    }
-  }
-
-  @Patch(':orderId')
-  @ApiOperation({
-    summary: 'Update order by ID',
-    description: 'Update details of a specific order by ID',
-  })
-  @ApiParam({
-    name: 'orderId',
-    type: 'number',
-    description: 'ID of the order to update',
-    example: 1,
-  })
-  @ApiBody({
-    type: UpdateOrderDto,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Order updated successfully',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request - The update data is invalid or incomplete',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Order not found - The specified order ID does not exist',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error - An unexpected error occurred',
-  })
-  async updateOrder(
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Body() updateOrderDto: UpdateOrderDto,
-  ) {
-    try {
-      const res = await this.ordersService.update(orderId, updateOrderDto);
-      return {
-        message: 'Order updated successfully',
-        data: res,
-      };
     } catch (error) {
       this.catchError(error);
     }
@@ -211,10 +176,12 @@ export class OrdersController extends BaseController {
   async deleteOrder(
     @Param('orderId', ParseIntPipe) orderId: number,
     @Body() body: any,
+    @Req() req: Request,
   ) {
     try {
       this.validateEmptyBody(body);
-      const res = await this.ordersService.delete(orderId);
+      const payloadToken = req.user as PayloadToken;
+      const res = await this.ordersService.delete(orderId, payloadToken);
       return {
         message: 'Order deleted successfully',
         data: res,

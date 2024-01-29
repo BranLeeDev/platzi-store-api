@@ -35,7 +35,7 @@ import { BaseController } from '../../../common/base.controller';
 // Auth imports
 import { Public } from '../../../auth/decorators/public.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
-import { PayloadToken } from 'src/modules/auth/types/interfaces';
+import { PayloadToken } from '../../../auth/types/interfaces';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('users')

@@ -28,7 +28,7 @@ import { BaseService } from '../../../common/base.service';
 import registers from '../../../../configs/registers';
 import { ConfigType } from '@nestjs/config';
 import { ROLES } from '../../types/enums';
-import { PayloadToken } from 'src/modules/auth/types/interfaces';
+import { PayloadToken } from '../../../auth/types/interfaces';
 
 @Injectable()
 export class UsersService extends BaseService {

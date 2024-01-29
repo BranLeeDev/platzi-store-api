@@ -1,5 +1,9 @@
 // NestJS modules
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
@@ -9,14 +13,15 @@ import { Repository } from 'typeorm';
 import { Order } from '../../entities';
 
 // DTOs
-import { CreateOrderDto, FilterOrdersDto, UpdateOrderDto } from '../../dtos';
+import { FilterOrdersDto } from '../../dtos';
 
 // Services
 import { CustomersService } from '../index';
 import { UsersService } from '../users/users.service';
 
 // Module imports
-import { BaseService } from 'src/modules/common/base.service';
+import { BaseService } from '../../../common/base.service';
+import { PayloadToken } from '../../../auth/types/interfaces';
 
 @Injectable()
 export class OrdersService extends BaseService {
@@ -67,28 +72,32 @@ export class OrdersService extends BaseService {
     return ordersList;
   }
 
-  async findOne(orderId: number) {
+  async findOne(orderId: number, payloadToken: PayloadToken) {
     try {
       const order = await this.orderRepo.findOne({
         where: { id: orderId },
-        relations: ['productsOrder', 'productsOrder.product'],
+        relations: ['customer'],
       });
+      const user = await this.usersService.findOne(payloadToken.sub);
       if (!order) throw new NotFoundException(`Order #${orderId} not Found`);
+      if (user.customer.id !== order.customer.id)
+        throw new UnauthorizedException(
+          'You do not have the necessary permissions to access this order',
+        );
       return order;
     } catch (error) {
       this.catchError(error);
     }
   }
 
-  async create(createOrderDto: CreateOrderDto) {
+  async create(userIdFromToken: number) {
     try {
+      const user = await this.usersService.findOne(userIdFromToken);
+      const customer = await this.customersService.findCustomerById(
+        user.customer.id,
+      );
       const newOrder = new Order();
-      if (createOrderDto.customerId) {
-        const customer = await this.customersService.findCustomerById(
-          createOrderDto.customerId,
-        );
-        newOrder.customer = customer;
-      }
+      newOrder.customer = customer;
       const createdOrder = await this.orderRepo.save(newOrder);
       return createdOrder;
     } catch (error) {
@@ -96,24 +105,18 @@ export class OrdersService extends BaseService {
     }
   }
 
-  async update(orderId: number, updateOrderDto: UpdateOrderDto) {
+  async delete(orderId: number, payloadToken: PayloadToken) {
     try {
-      const orderFound = await this.findOrderById(orderId);
-      if (updateOrderDto.customerId) {
-        const customer = await this.customersService.findCustomerById(
-          updateOrderDto.customerId,
+      const order = await this.orderRepo.findOne({
+        where: { id: orderId },
+        relations: ['customer'],
+      });
+      const user = await this.usersService.findOne(payloadToken.sub);
+      if (!order) throw new NotFoundException(`Order #${orderId} not Found`);
+      if (user.customer.id !== order.customer.id)
+        throw new UnauthorizedException(
+          'You do not have the necessary permissions to access this order',
         );
-        orderFound.customer = customer;
-      }
-      const updatedOrder = await this.orderRepo.save(orderFound);
-      return updatedOrder;
-    } catch (error) {
-      this.catchError(error);
-    }
-  }
-
-  async delete(orderId: number) {
-    try {
       const deletedOrder = await this.findOrderById(orderId);
       await this.orderRepo.delete(orderId);
       return deletedOrder;
