@@ -150,6 +150,12 @@ export class ProductsService extends BaseService {
         );
         productFound.brand = brand;
       }
+      if (updateProductDto.imageId) {
+        const image = await this.imagesService.findImageById(
+          updateProductDto.imageId,
+        );
+        productFound.image = image;
+      }
       if (updateProductDto.categoriesIds) {
         await this.validateCategoriesExist(updateProductDto.categoriesIds);
         const categories = await this.categoryRepo.findBy({
