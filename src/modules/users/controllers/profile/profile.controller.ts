@@ -6,8 +6,10 @@ import { ROLES } from '../../types/enums';
 import { OrdersService } from '../../services';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/roles/roles.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiTags('profile')
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly ordersService: OrdersService) {}
