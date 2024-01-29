@@ -4,9 +4,10 @@ import { join } from 'path';
 // NestJS modules
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 
 // Third-party libraries
 import * as Joi from 'joi';
@@ -25,6 +26,7 @@ import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
+    CacheModule.register(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       exclude: ['/(.*)'],
@@ -61,6 +63,10 @@ import { AuthModule } from './modules/auth/auth.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
     },
   ],
 })
