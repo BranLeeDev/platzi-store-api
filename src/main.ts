@@ -32,7 +32,14 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.enableCors();
-  app.use(helmet());
+  app.use(
+    helmet.contentSecurityPolicy({
+      useDefaults: true,
+      directives: {
+        'img-src': ['self', 'https: data:'],
+      },
+    }),
+  );
 
   app.setGlobalPrefix('api/v1');
 

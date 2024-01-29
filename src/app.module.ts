@@ -1,8 +1,12 @@
+// NodeJS modules
+import { join } from 'path';
+
 // NestJS modules
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 // Third-party libraries
 import * as Joi from 'joi';
@@ -21,6 +25,10 @@ import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/(.*)'],
+    }),
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

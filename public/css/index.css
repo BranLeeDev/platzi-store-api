@@ -1,0 +1,158 @@
+:root {
+  --header-color: #b3c7ff;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+a {
+  background: none;
+  text-decoration: none;
+}
+
+body {
+  background-color: #17181c;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.contente-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5em;
+  min-width: 20em;
+  width: 100%;
+  min-height: 20em;
+}
+
+.header,
+.main {
+  width: 90%;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em 0;
+}
+
+.header__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 1.25rem;
+  color: var(--header-color);
+}
+
+.title__image {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+.header__link-icon {
+  font-size: 1.75rem;
+}
+
+.link-icon__icon {
+  color: var(--header-color);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main__section {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 1em;
+  width: 100%;
+  max-width: 68em;
+}
+
+.section__container-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
+}
+
+.section__title {
+  color: #ffffff;
+}
+
+.section__paragraph {
+  font-size: 1.125rem;
+  color: #c1c3c8;
+}
+
+.section__title,
+.section__paragraph {
+  text-align: center;
+}
+
+.section__image {
+  width: 100%;
+  max-width: 20em;
+}
+
+.section__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 1em 1.25em;
+  background-color: var(--header-color);
+  border-radius: 99999rem;
+  color: #17181c;
+  font-weight: 600;
+}
+
+.button__icon {
+  color: #17181c;
+}
+
+@media screen and (width >= 50em) {
+  .header__title {
+    font-size: 1.5rem;
+  }
+
+  .title__image {
+    width: 1.5em;
+    height: 1.5em;
+  }
+
+  .header__link-icon {
+    font-size: 2rem;
+  }
+
+  .main__section {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .section__container-text {
+    align-items: flex-start;
+    gap: 1.5em;
+  }
+
+  .section__title {
+    font-size: 4rem;
+    line-height: 1.2;
+  }
+
+  .section__paragraph {
+    font-size: 1.25rem;
+  }
+
+  .section__title,
+  .section__paragraph {
+    text-align: start;
+  }
+}
