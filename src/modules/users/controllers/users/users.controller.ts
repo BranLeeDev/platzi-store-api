@@ -8,6 +8,8 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -16,6 +18,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 
 // Service imports
 import { UsersService } from '../../services';
@@ -29,6 +32,12 @@ import { User } from '../../entities';
 // Module imports
 import { BaseController } from '../../../common/base.controller';
 
+// Auth imports
+import { Public } from '../../../auth/decorators/public.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
+import { PayloadToken } from 'src/modules/auth/types/interfaces';
+
+@UseGuards(JwtAuthGuard)
 @ApiTags('users')
 @Controller('users')
 export class UsersController extends BaseController {
@@ -36,6 +45,7 @@ export class UsersController extends BaseController {
     super();
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Get all users',
@@ -64,6 +74,7 @@ export class UsersController extends BaseController {
     }
   }
 
+  @Public()
   @Post()
   @ApiOperation({
     summary: 'Create a user',
@@ -96,6 +107,7 @@ export class UsersController extends BaseController {
     }
   }
 
+  @Public()
   @Get(':userId')
   @ApiOperation({
     summary: 'Get user by ID',
@@ -167,9 +179,15 @@ export class UsersController extends BaseController {
   async updateUser(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() updateUserDto: UpdateUserDto,
+    @Req() req: Request,
   ) {
     try {
-      const res = await this.usersService.update(userId, updateUserDto);
+      const payloadToken = req.user as PayloadToken;
+      const res = await this.usersService.update(
+        userId,
+        payloadToken,
+        updateUserDto,
+      );
       return {
         message: 'User updated successfully',
         data: res,
@@ -190,10 +208,15 @@ export class UsersController extends BaseController {
     description: 'ID of the user to delete',
   })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  async deleteUser(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
+  async deleteUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() body: any,
+    @Req() req: Request,
+  ) {
     try {
       this.validateEmptyBody(body);
-      const res = await this.usersService.delete(id);
+      const payloadToken = req.user as PayloadToken;
+      const res = await this.usersService.delete(userId, payloadToken);
       return {
         message: 'User deleted successfully',
         data: res,

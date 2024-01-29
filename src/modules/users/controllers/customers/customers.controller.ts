@@ -2,13 +2,14 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -18,6 +19,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 
 // Entities
 import { Customer } from '../../entities';
@@ -35,6 +37,12 @@ import { CustomersService } from '../../services/customers/customers.service';
 // Module imports
 import { BaseController } from '../../../common/base.controller';
 
+// Auth imports
+import { Public } from '../../../auth/decorators/public.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth/jwt-auth.guard';
+import { PayloadToken } from 'src/modules/auth/types/interfaces';
+
+@UseGuards(JwtAuthGuard)
 @ApiTags('customers')
 @Controller('customers')
 export class CustomersController extends BaseController {
@@ -42,6 +50,7 @@ export class CustomersController extends BaseController {
     super();
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Get all customers',
@@ -86,6 +95,7 @@ export class CustomersController extends BaseController {
     }
   }
 
+  @Public()
   @Post()
   @ApiOperation({
     summary: 'Create a customer',
@@ -118,6 +128,7 @@ export class CustomersController extends BaseController {
     }
   }
 
+  @Public()
   @Get(':customerId')
   @ApiOperation({
     summary: 'Get customer by ID',
@@ -188,50 +199,17 @@ export class CustomersController extends BaseController {
   async updateCustomer(
     @Param('customerId', ParseIntPipe) customerId: number,
     @Body() updateCustomerDto: UpdateCustomerDto,
+    @Req() req: Request,
   ) {
     try {
+      const payloadToken = req.user as PayloadToken;
       const res = await this.customersService.update(
         customerId,
+        payloadToken,
         updateCustomerDto,
       );
       return {
         message: 'Customer updated successfully',
-        data: res,
-      };
-    } catch (error) {
-      this.catchError(error);
-    }
-  }
-
-  @Delete(':customerId')
-  @ApiOperation({
-    summary: 'Delete customer by ID',
-    description: 'Delete a specif customer by ID',
-  })
-  @ApiParam({
-    name: 'customerId',
-    type: 'number',
-    description: 'ID of the customer to delete',
-    example: 1,
-  })
-  @ApiResponse({ status: 200, description: 'Customer deleted successfully' })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad request - This endpoint does not accept content',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error - An unexpected error occurred',
-  })
-  async deleteCustomer(
-    @Param('customerId', ParseIntPipe) customerId: number,
-    @Body() body: any,
-  ) {
-    try {
-      this.validateEmptyBody(body);
-      const res = await this.customersService.delete(customerId);
-      return {
-        message: 'Customer deleted successfully',
         data: res,
       };
     } catch (error) {

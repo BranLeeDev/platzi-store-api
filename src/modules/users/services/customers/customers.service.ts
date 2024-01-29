@@ -1,5 +1,9 @@
 // NestJS modules
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
@@ -17,6 +21,8 @@ import {
 
 // Module imports
 import { BaseService } from '../../../common/base.service';
+import { PayloadToken } from 'src/modules/auth/types/interfaces';
+import { ROLES } from '../../types/enums';
 
 @Injectable()
 export class CustomersService extends BaseService {
@@ -79,22 +85,24 @@ export class CustomersService extends BaseService {
     }
   }
 
-  async update(customerId: number, updateCustomerDto: UpdateCustomerDto) {
+  async update(
+    customerId: number,
+    payloadToken: PayloadToken,
+    updateCustomerDto: UpdateCustomerDto,
+  ) {
     try {
-      const customerFound = await this.findCustomerById(customerId);
+      const customerFound = await this.findOne(customerId);
+      if (
+        payloadToken.role !== ROLES.ADMIN &&
+        customerFound.user.id !== payloadToken.sub
+      ) {
+        throw new UnauthorizedException(
+          'You do not have the necessary permissions to update the information for this customer account',
+        );
+      }
       this.customerRepo.merge(customerFound, updateCustomerDto);
       const updatedCustomer = await this.customerRepo.save(customerFound);
       return updatedCustomer;
-    } catch (error) {
-      this.catchError(error);
-    }
-  }
-
-  async delete(customerId: number) {
-    try {
-      const deletedCustomer = await this.findOne(customerId);
-      await this.customerRepo.delete(customerId);
-      return deletedCustomer;
     } catch (error) {
       this.catchError(error);
     }

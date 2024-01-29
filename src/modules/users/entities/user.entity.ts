@@ -28,7 +28,10 @@ export class User extends Base {
   })
   role: ROLES;
 
-  @OneToOne(() => Customer, (customer) => customer.user, { nullable: true })
+  @OneToOne(() => Customer, (customer) => customer.user, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 }

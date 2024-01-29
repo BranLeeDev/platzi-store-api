@@ -28,6 +28,7 @@ import { BaseService } from '../../../common/base.service';
 import registers from '../../../../configs/registers';
 import { ConfigType } from '@nestjs/config';
 import { ROLES } from '../../types/enums';
+import { PayloadToken } from 'src/modules/auth/types/interfaces';
 
 @Injectable()
 export class UsersService extends BaseService {
@@ -126,8 +127,16 @@ export class UsersService extends BaseService {
     }
   }
 
-  async update(userId: number, updateUserDto: UpdateUserDto) {
+  async update(
+    userId: number,
+    payloadToken: PayloadToken,
+    updateUserDto: UpdateUserDto,
+  ) {
     try {
+      if (payloadToken.sub !== userId && payloadToken.role !== ROLES.ADMIN)
+        throw new UnauthorizedException(
+          'You do not have the necessary permissions to update the details for this user',
+        );
       const userFound = await this.findUserById(userId);
       this.userRepo.merge(userFound, updateUserDto);
       const updatedUser = await this.userRepo.save(userFound);
@@ -137,8 +146,12 @@ export class UsersService extends BaseService {
     }
   }
 
-  async delete(userId: number) {
+  async delete(userId: number, payloadToken: PayloadToken) {
     try {
+      if (payloadToken.sub !== userId && payloadToken.role !== ROLES.ADMIN)
+        throw new UnauthorizedException(
+          'You do not have the necessary permissions to delete this user',
+        );
       const deletedUser = await this.findUserById(userId);
       await this.userRepo.delete(userId);
       return deletedUser;
