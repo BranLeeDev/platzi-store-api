@@ -1,9 +1,5 @@
 // NestJS modules
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party libraries
@@ -39,14 +35,6 @@ export class ImagesService extends BaseService {
         { folder: 'platzi-store-api/images' },
         async (error, result) => {
           if (error) return reject(error);
-
-          if (result.width >= 1200 || result.height >= 1200) {
-            reject(
-              new BadRequestException(
-                'Image dimensions must be 1200x1200 pixels or smaller',
-              ),
-            );
-          }
 
           const createImageDto: CreateImageDto = {
             width: result.width,
